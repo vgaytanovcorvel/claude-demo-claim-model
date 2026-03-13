@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__playwright__browser_navigate",
+      "Read(//c/Users/a03.Vladimir_Gaytano/source/repos/claude-demo-claim-model/**)",
+      "Bash(rm -rf node_modules/.vite)",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_take_screenshot",
+      "Bash(git -C /c/Users/a03.Vladimir_Gaytano/source/repos/claude-demo-claim-model branch)",
+      "Bash(git -C /c/Users/a03.Vladimir_Gaytano/source/repos/claude-demo-claim-model status)",
+      "Bash(git -C /c/Users/a03.Vladimir_Gaytano/source/repos/claude-demo-claim-model branch -m master main)",
+      "Bash(git -C /c/Users/a03.Vladimir_Gaytano/source/repos/claude-demo-claim-model add .gitignore CLAUDE.md README.md eslint.config.js index.html package-lock.json package.json public/ src/ tsconfig.app.json tsconfig.json tsconfig.node.json vite.config.ts)"
+    ]
+  }
+}

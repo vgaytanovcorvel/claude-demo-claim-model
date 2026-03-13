@@ -1,0 +1,250 @@
+{
+  "fnol-received": {
+    "milestones": [
+      { "id": "blind", "name": "Three-Point Contact", "phase": "blind", "estimatedDays": 3, "actualDays": null, "variation": -3 }
+    ],
+    "outstandingItems": [
+      { "id": "oi-er-records", "owner": "ER Provider", "category": "Provider", "description": "Obtain ER treatment records from provider", "createdAt": "2025-06-10T14:35:00", "status": "open", "urgencyType": "deadline-driven", "terminalAt": null },
+      { "id": "oi-contact-employer", "owner": "Adjuster", "category": "Internal", "description": "Contact employer to verify employment and incident details", "createdAt": "2025-06-10T14:35:00", "status": "open", "urgencyType": "milestone-protecting", "terminalAt": null },
+      { "id": "oi-contact-iw", "owner": "Adjuster", "category": "Internal", "description": "Contact injured worker for recorded statement", "createdAt": "2025-06-10T14:35:00", "status": "open", "urgencyType": "milestone-protecting", "terminalAt": null }
+    ],
+    "careGaps": []
+  },
+  "employer-communication": {
+    "milestones": [
+      { "id": "blind", "name": "Three-Point Contact", "phase": "blind", "estimatedDays": 3, "actualDays": null, "variation": -2 },
+      { "id": "acute", "name": "Diagnosis & Treatment Plan", "phase": "acute", "estimatedDays": 14, "actualDays": null, "variation": -13 },
+
+      { "id": "post-acute", "name": "Surgery Completed", "phase": "post-acute", "estimatedDays": 30, "actualDays": null, "variation": -29 },
+      { "id": "recovery", "name": "PT Initiated", "phase": "recovery", "estimatedDays": 44, "actualDays": null, "variation": -43 },
+      { "id": "resolution", "name": "MMI Reached", "phase": "resolution", "estimatedDays": 120, "actualDays": null, "variation": -119 }
+    ],
+    "outstandingItems": [
+      { "id": "oi-er-records", "owner": "ER Provider", "category": "Provider", "description": "Obtain ER treatment records from provider", "createdAt": "2025-06-10T14:35:00", "status": "open", "urgencyType": "deadline-driven", "terminalAt": null },
+      { "id": "oi-contact-employer", "owner": "Adjuster", "category": "Internal", "description": "Contact employer to verify employment and incident details", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-11T09:15:00" },
+      { "id": "oi-contact-iw", "owner": "Adjuster", "category": "Internal", "description": "Contact injured worker for recorded statement", "createdAt": "2025-06-10T14:35:00", "status": "open", "urgencyType": "milestone-protecting", "terminalAt": null }
+    ],
+    "careGaps": []
+  },
+  "er-report-received": {
+    "milestones": [
+      { "id": "blind", "name": "Three-Point Contact", "phase": "blind", "estimatedDays": 3, "actualDays": null, "variation": -1 },
+      { "id": "acute", "name": "Diagnosis & Treatment Plan", "phase": "acute", "estimatedDays": 14, "actualDays": null, "variation": -12 },
+      { "id": "post-acute", "name": "Surgery Completed", "phase": "post-acute", "estimatedDays": 30, "actualDays": null, "variation": -28 },
+      { "id": "recovery", "name": "PT Initiated", "phase": "recovery", "estimatedDays": 44, "actualDays": null, "variation": -42 },
+      { "id": "resolution", "name": "MMI Reached", "phase": "resolution", "estimatedDays": 120, "actualDays": null, "variation": -118 }
+    ],
+    "outstandingItems": [
+      { "id": "oi-er-records", "owner": "ER Provider", "category": "Provider", "description": "Obtain ER treatment records from provider", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "deadline-driven", "terminalAt": "2025-06-12T10:00:00" },
+      { "id": "oi-contact-employer", "owner": "Adjuster", "category": "Internal", "description": "Contact employer to verify employment and incident details", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-11T09:15:00" },
+      { "id": "oi-contact-iw", "owner": "Adjuster", "category": "Internal", "description": "Contact injured worker for recorded statement", "createdAt": "2025-06-10T14:35:00", "status": "open", "urgencyType": "milestone-protecting", "terminalAt": null },
+      { "id": "oi-ortho-appt", "owner": "Adjuster", "category": "Internal", "description": "Schedule orthopedics appointment per ER referral", "createdAt": "2025-06-12T10:00:00", "status": "open", "urgencyType": "milestone-protecting", "terminalAt": null }
+    ],
+    "careGaps": []
+  },
+  "care-gap-alert": {
+    "milestones": [
+      { "id": "blind", "name": "Three-Point Contact", "phase": "blind", "estimatedDays": 3, "actualDays": null, "variation": 5 },
+      { "id": "acute", "name": "Diagnosis & Treatment Plan", "phase": "acute", "estimatedDays": 14, "actualDays": null, "variation": -6 },
+      { "id": "post-acute", "name": "Surgery Completed", "phase": "post-acute", "estimatedDays": 30, "actualDays": null, "variation": -22 },
+      { "id": "recovery", "name": "PT Initiated", "phase": "recovery", "estimatedDays": 44, "actualDays": null, "variation": -36 },
+      { "id": "resolution", "name": "MMI Reached", "phase": "resolution", "estimatedDays": 120, "actualDays": null, "variation": -112 }
+    ],
+    "outstandingItems": [
+      { "id": "oi-er-records", "owner": "ER Provider", "category": "Provider", "description": "Obtain ER treatment records from provider", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "deadline-driven", "terminalAt": "2025-06-12T10:00:00" },
+      { "id": "oi-contact-employer", "owner": "Adjuster", "category": "Internal", "description": "Contact employer to verify employment and incident details", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-11T09:15:00" },
+      { "id": "oi-contact-iw", "owner": "Adjuster", "category": "Internal", "description": "Contact injured worker for recorded statement", "createdAt": "2025-06-10T14:35:00", "status": "open", "urgencyType": "milestone-protecting", "terminalAt": null },
+      { "id": "oi-ortho-appt", "owner": "Adjuster", "category": "Internal", "description": "Schedule orthopedics appointment per ER referral", "createdAt": "2025-06-12T10:00:00", "status": "open", "urgencyType": "milestone-protecting", "terminalAt": null }
+    ],
+    "careGaps": [
+      { "gapId": "cg-1", "gapType": "delayed-specialist", "gapCategory": "clinical", "createdAt": "2025-06-18T10:00:00", "createdBy": "system", "description": "Orthopedics appointment not yet scheduled — 6 days since ER referral, still no diagnosis", "severity": "high", "severityRationale": "Extended time without specialist evaluation delays treatment planning", "status": "open", "outstandingItemIds": ["oi-ortho-appt"] }
+    ]
+  },
+  "iw-communication": {
+    "milestones": [
+      { "id": "blind", "name": "Three-Point Contact", "phase": "blind", "estimatedDays": 3, "actualDays": 13, "variation": 10 },
+      { "id": "acute", "name": "Diagnosis & Treatment Plan", "phase": "acute", "estimatedDays": 14, "actualDays": null, "variation": -1 },
+      { "id": "post-acute", "name": "Surgery Completed", "phase": "post-acute", "estimatedDays": 30, "actualDays": null, "variation": -17 },
+      { "id": "recovery", "name": "PT Initiated", "phase": "recovery", "estimatedDays": 44, "actualDays": null, "variation": -31 },
+      { "id": "resolution", "name": "MMI Reached", "phase": "resolution", "estimatedDays": 120, "actualDays": null, "variation": -107 }
+    ],
+    "outstandingItems": [
+      { "id": "oi-er-records", "owner": "ER Provider", "category": "Provider", "description": "Obtain ER treatment records from provider", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "deadline-driven", "terminalAt": "2025-06-12T10:00:00" },
+      { "id": "oi-contact-employer", "owner": "Adjuster", "category": "Internal", "description": "Contact employer to verify employment and incident details", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-11T09:15:00" },
+      { "id": "oi-contact-iw", "owner": "Adjuster", "category": "Internal", "description": "Contact injured worker for recorded statement", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-23T10:45:00" },
+      { "id": "oi-ortho-appt", "owner": "Adjuster", "category": "Internal", "description": "Schedule orthopedics appointment per ER referral", "createdAt": "2025-06-12T10:00:00", "status": "open", "urgencyType": "milestone-protecting", "terminalAt": null }
+    ],
+    "careGaps": [
+      { "gapId": "cg-1", "gapType": "delayed-specialist", "gapCategory": "clinical", "createdAt": "2025-06-18T10:00:00", "createdBy": "system", "description": "Orthopedics appointment not yet scheduled — 6 days since ER referral, still no diagnosis", "severity": "high", "severityRationale": "Extended time without specialist evaluation delays treatment planning", "status": "open", "outstandingItemIds": ["oi-ortho-appt"] }
+    ]
+  },
+  "ortho-scheduled": {
+    "milestones": [
+      { "id": "blind", "name": "Three-Point Contact", "phase": "blind", "estimatedDays": 3, "actualDays": 13, "variation": 10 },
+      { "id": "acute", "name": "Diagnosis & Treatment Plan", "phase": "acute", "estimatedDays": 14, "actualDays": null, "variation": 0 },
+      { "id": "post-acute", "name": "Surgery Completed", "phase": "post-acute", "estimatedDays": 30, "actualDays": null, "variation": -16 },
+      { "id": "recovery", "name": "PT Initiated", "phase": "recovery", "estimatedDays": 44, "actualDays": null, "variation": -30 },
+      { "id": "resolution", "name": "MMI Reached", "phase": "resolution", "estimatedDays": 120, "actualDays": null, "variation": -106 }
+    ],
+    "outstandingItems": [
+      { "id": "oi-er-records", "owner": "ER Provider", "category": "Provider", "description": "Obtain ER treatment records from provider", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "deadline-driven", "terminalAt": "2025-06-12T10:00:00" },
+      { "id": "oi-contact-employer", "owner": "Adjuster", "category": "Internal", "description": "Contact employer to verify employment and incident details", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-11T09:15:00" },
+      { "id": "oi-contact-iw", "owner": "Adjuster", "category": "Internal", "description": "Contact injured worker for recorded statement", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-23T10:45:00" },
+      { "id": "oi-ortho-appt", "owner": "Adjuster", "category": "Internal", "description": "Schedule orthopedics appointment per ER referral", "createdAt": "2025-06-12T10:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-24T11:00:00" },
+      { "id": "oi-ortho-results", "owner": "Orthopedic Specialist", "category": "Provider", "description": "Obtain orthopedics results and diagnosis from specialist", "createdAt": "2025-06-24T11:00:00", "status": "open", "urgencyType": "milestone-protecting", "terminalAt": null }
+    ],
+    "careGaps": [
+      { "gapId": "cg-1", "gapType": "delayed-specialist", "gapCategory": "clinical", "createdAt": "2025-06-18T10:00:00", "createdBy": "system", "description": "Orthopedics appointment not yet scheduled — 6 days since ER referral, still no diagnosis", "severity": "high", "severityRationale": "Extended time without specialist evaluation delays treatment planning", "status": "resolved", "outstandingItemIds": ["oi-ortho-appt"] }
+    ]
+  },
+  "orthopedics-appointment": {
+    "milestones": [
+      { "id": "blind", "name": "Three-Point Contact", "phase": "blind", "estimatedDays": 3, "actualDays": 13, "variation": 10 },
+      { "id": "acute", "name": "Diagnosis & Treatment Plan", "phase": "acute", "estimatedDays": 14, "actualDays": 18, "variation": 4 },
+      { "id": "post-acute", "name": "Surgery Completed", "phase": "post-acute", "estimatedDays": 30, "actualDays": null, "variation": -12 },
+      { "id": "recovery", "name": "PT Initiated", "phase": "recovery", "estimatedDays": 44, "actualDays": null, "variation": -26 },
+      { "id": "resolution", "name": "MMI Reached", "phase": "resolution", "estimatedDays": 120, "actualDays": null, "variation": -102 }
+    ],
+    "outstandingItems": [
+      { "id": "oi-er-records", "owner": "ER Provider", "category": "Provider", "description": "Obtain ER treatment records from provider", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "deadline-driven", "terminalAt": "2025-06-12T10:00:00" },
+      { "id": "oi-contact-employer", "owner": "Adjuster", "category": "Internal", "description": "Contact employer to verify employment and incident details", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-11T09:15:00" },
+      { "id": "oi-contact-iw", "owner": "Adjuster", "category": "Internal", "description": "Contact injured worker for recorded statement", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-23T10:45:00" },
+      { "id": "oi-ortho-appt", "owner": "Adjuster", "category": "Internal", "description": "Schedule orthopedics appointment per ER referral", "createdAt": "2025-06-12T10:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-24T11:00:00" },
+      { "id": "oi-ortho-results", "owner": "Orthopedic Specialist", "category": "Provider", "description": "Obtain orthopedics results and diagnosis from specialist", "createdAt": "2025-06-24T11:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-28T13:30:00" },
+      { "id": "oi-authorize-mri", "owner": "Adjuster", "category": "Internal", "description": "Authorize MRI", "createdAt": "2025-06-28T13:30:00", "status": "open", "urgencyType": "milestone-protecting", "terminalAt": null },
+      { "id": "oi-preauth-surgery", "owner": "Adjuster", "category": "Internal", "description": "Pre-authorize surgery", "createdAt": "2025-06-28T13:30:00", "status": "open", "urgencyType": "milestone-protecting", "terminalAt": null }
+    ],
+    "careGaps": [
+      { "gapId": "cg-1", "gapType": "delayed-specialist", "gapCategory": "clinical", "createdAt": "2025-06-18T10:00:00", "createdBy": "system", "description": "Orthopedics appointment not yet scheduled — 6 days since ER referral, still no diagnosis", "severity": "high", "severityRationale": "Extended time without specialist evaluation delays treatment planning", "status": "resolved", "outstandingItemIds": ["oi-ortho-appt"] }
+    ]
+  },
+  "surgery": {
+    "milestones": [
+      { "id": "blind", "name": "Three-Point Contact", "phase": "blind", "estimatedDays": 3, "actualDays": 13, "variation": 10 },
+      { "id": "acute", "name": "Diagnosis & Treatment Plan", "phase": "acute", "estimatedDays": 14, "actualDays": 18, "variation": 4 },
+      { "id": "post-acute", "name": "Surgery Completed", "phase": "post-acute", "estimatedDays": 30, "actualDays": 32, "variation": 2 },
+      { "id": "recovery", "name": "PT Initiated", "phase": "recovery", "estimatedDays": 44, "actualDays": null, "variation": -12 },
+      { "id": "resolution", "name": "MMI Reached", "phase": "resolution", "estimatedDays": 120, "actualDays": null, "variation": -88 }
+    ],
+    "outstandingItems": [
+      { "id": "oi-er-records", "owner": "ER Provider", "category": "Provider", "description": "Obtain ER treatment records from provider", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "deadline-driven", "terminalAt": "2025-06-12T10:00:00" },
+      { "id": "oi-contact-employer", "owner": "Adjuster", "category": "Internal", "description": "Contact employer to verify employment and incident details", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-11T09:15:00" },
+      { "id": "oi-contact-iw", "owner": "Adjuster", "category": "Internal", "description": "Contact injured worker for recorded statement", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-23T10:45:00" },
+      { "id": "oi-ortho-appt", "owner": "Adjuster", "category": "Internal", "description": "Schedule orthopedics appointment per ER referral", "createdAt": "2025-06-12T10:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-24T11:00:00" },
+      { "id": "oi-ortho-results", "owner": "Orthopedic Specialist", "category": "Provider", "description": "Obtain orthopedics results and diagnosis from specialist", "createdAt": "2025-06-24T11:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-28T13:30:00" },
+      { "id": "oi-authorize-mri", "owner": "Adjuster", "category": "Internal", "description": "Authorize MRI", "createdAt": "2025-06-28T13:30:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-07-03T10:00:00" },
+      { "id": "oi-preauth-surgery", "owner": "Adjuster", "category": "Internal", "description": "Pre-authorize surgery", "createdAt": "2025-06-28T13:30:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-07-07T15:00:00" },
+      { "id": "oi-postop-report", "owner": "Surgeon", "category": "Provider", "description": "Obtain post-op report from surgeon", "createdAt": "2025-07-12T07:00:00", "status": "open", "urgencyType": "deadline-driven", "terminalAt": null },
+      { "id": "oi-pt-referral", "owner": "Adjuster", "category": "Internal", "description": "Arrange PT referral", "createdAt": "2025-07-12T07:00:00", "status": "open", "urgencyType": "milestone-protecting", "terminalAt": null }
+    ],
+    "careGaps": [
+      { "gapId": "cg-1", "gapType": "delayed-specialist", "gapCategory": "clinical", "createdAt": "2025-06-18T10:00:00", "createdBy": "system", "description": "Orthopedics appointment not yet scheduled — 6 days since ER referral, still no diagnosis", "severity": "high", "severityRationale": "Extended time without specialist evaluation delays treatment planning", "status": "resolved", "outstandingItemIds": ["oi-ortho-appt"] }
+    ]
+  },
+  "care-gap-alert-pt": {
+    "milestones": [
+      { "id": "blind", "name": "Three-Point Contact", "phase": "blind", "estimatedDays": 3, "actualDays": 13, "variation": 10 },
+      { "id": "acute", "name": "Diagnosis & Treatment Plan", "phase": "acute", "estimatedDays": 14, "actualDays": 18, "variation": 4 },
+      { "id": "post-acute", "name": "Surgery Completed", "phase": "post-acute", "estimatedDays": 30, "actualDays": 32, "variation": 2 },
+      { "id": "recovery", "name": "PT Initiated", "phase": "recovery", "estimatedDays": 44, "actualDays": null, "variation": -6 },
+      { "id": "resolution", "name": "MMI Reached", "phase": "resolution", "estimatedDays": 120, "actualDays": null, "variation": -82 }
+    ],
+    "outstandingItems": [
+      { "id": "oi-er-records", "owner": "ER Provider", "category": "Provider", "description": "Obtain ER treatment records from provider", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "deadline-driven", "terminalAt": "2025-06-12T10:00:00" },
+      { "id": "oi-contact-employer", "owner": "Adjuster", "category": "Internal", "description": "Contact employer to verify employment and incident details", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-11T09:15:00" },
+      { "id": "oi-contact-iw", "owner": "Adjuster", "category": "Internal", "description": "Contact injured worker for recorded statement", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-23T10:45:00" },
+      { "id": "oi-ortho-appt", "owner": "Adjuster", "category": "Internal", "description": "Schedule orthopedics appointment per ER referral", "createdAt": "2025-06-12T10:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-24T11:00:00" },
+      { "id": "oi-ortho-results", "owner": "Orthopedic Specialist", "category": "Provider", "description": "Obtain orthopedics results and diagnosis from specialist", "createdAt": "2025-06-24T11:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-28T13:30:00" },
+      { "id": "oi-authorize-mri", "owner": "Adjuster", "category": "Internal", "description": "Authorize MRI", "createdAt": "2025-06-28T13:30:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-07-03T10:00:00" },
+      { "id": "oi-preauth-surgery", "owner": "Adjuster", "category": "Internal", "description": "Pre-authorize surgery", "createdAt": "2025-06-28T13:30:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-07-07T15:00:00" },
+      { "id": "oi-postop-report", "owner": "Surgeon", "category": "Provider", "description": "Obtain post-op report from surgeon", "createdAt": "2025-07-12T07:00:00", "status": "open", "urgencyType": "deadline-driven", "terminalAt": null },
+      { "id": "oi-pt-referral", "owner": "Adjuster", "category": "Internal", "description": "Arrange PT referral", "createdAt": "2025-07-12T07:00:00", "status": "open", "urgencyType": "milestone-protecting", "terminalAt": null }
+    ],
+    "careGaps": [
+      { "gapId": "cg-1", "gapType": "delayed-specialist", "gapCategory": "clinical", "createdAt": "2025-06-18T10:00:00", "createdBy": "system", "description": "Orthopedics appointment not yet scheduled — 6 days since ER referral, still no diagnosis", "severity": "high", "severityRationale": "Extended time without specialist evaluation delays treatment planning", "status": "resolved", "outstandingItemIds": ["oi-ortho-appt"] },
+      { "gapId": "cg-2", "gapType": "post-op-gap", "gapCategory": "clinical", "createdAt": "2025-07-18T10:00:00", "createdBy": "system", "description": "PT not yet scheduled — 6 days post-surgery, recovery window narrowing", "severity": "high", "severityRationale": "Delayed PT after meniscus repair risks poor outcome", "status": "open", "outstandingItemIds": ["oi-pt-referral"] }
+    ]
+  },
+  "pt-scheduled": {
+    "milestones": [
+      { "id": "blind", "name": "Three-Point Contact", "phase": "blind", "estimatedDays": 3, "actualDays": 13, "variation": 10 },
+      { "id": "acute", "name": "Diagnosis & Treatment Plan", "phase": "acute", "estimatedDays": 14, "actualDays": 18, "variation": 4 },
+      { "id": "post-acute", "name": "Surgery Completed", "phase": "post-acute", "estimatedDays": 30, "actualDays": 32, "variation": 2 },
+      { "id": "recovery", "name": "PT Initiated", "phase": "recovery", "estimatedDays": 44, "actualDays": null, "variation": 0 },
+      { "id": "resolution", "name": "MMI Reached", "phase": "resolution", "estimatedDays": 120, "actualDays": null, "variation": -76 }
+    ],
+    "outstandingItems": [
+      { "id": "oi-er-records", "owner": "ER Provider", "category": "Provider", "description": "Obtain ER treatment records from provider", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "deadline-driven", "terminalAt": "2025-06-12T10:00:00" },
+      { "id": "oi-contact-employer", "owner": "Adjuster", "category": "Internal", "description": "Contact employer to verify employment and incident details", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-11T09:15:00" },
+      { "id": "oi-contact-iw", "owner": "Adjuster", "category": "Internal", "description": "Contact injured worker for recorded statement", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-23T10:45:00" },
+      { "id": "oi-ortho-appt", "owner": "Adjuster", "category": "Internal", "description": "Schedule orthopedics appointment per ER referral", "createdAt": "2025-06-12T10:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-24T11:00:00" },
+      { "id": "oi-ortho-results", "owner": "Orthopedic Specialist", "category": "Provider", "description": "Obtain orthopedics results and diagnosis from specialist", "createdAt": "2025-06-24T11:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-28T13:30:00" },
+      { "id": "oi-authorize-mri", "owner": "Adjuster", "category": "Internal", "description": "Authorize MRI", "createdAt": "2025-06-28T13:30:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-07-03T10:00:00" },
+      { "id": "oi-preauth-surgery", "owner": "Adjuster", "category": "Internal", "description": "Pre-authorize surgery", "createdAt": "2025-06-28T13:30:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-07-07T15:00:00" },
+      { "id": "oi-postop-report", "owner": "Surgeon", "category": "Provider", "description": "Obtain post-op report from surgeon", "createdAt": "2025-07-12T07:00:00", "status": "completed", "urgencyType": "deadline-driven", "terminalAt": "2025-07-20T11:00:00" },
+      { "id": "oi-pt-referral", "owner": "Adjuster", "category": "Internal", "description": "Arrange PT referral", "createdAt": "2025-07-12T07:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-07-24T09:00:00" },
+      { "id": "oi-pt-attendance", "owner": "Injured Worker", "category": "IW", "description": "Confirm injured worker attends first PT session Jul 26", "createdAt": "2025-07-24T09:00:00", "status": "open", "urgencyType": "milestone-protecting", "terminalAt": null }
+    ],
+    "careGaps": [
+      { "gapId": "cg-1", "gapType": "delayed-specialist", "gapCategory": "clinical", "createdAt": "2025-06-18T10:00:00", "createdBy": "system", "description": "Orthopedics appointment not yet scheduled — 6 days since ER referral, still no diagnosis", "severity": "high", "severityRationale": "Extended time without specialist evaluation delays treatment planning", "status": "resolved", "outstandingItemIds": ["oi-ortho-appt"] },
+      { "gapId": "cg-2", "gapType": "post-op-gap", "gapCategory": "clinical", "createdAt": "2025-07-18T10:00:00", "createdBy": "system", "description": "PT not yet scheduled — 6 days post-surgery, recovery window narrowing", "severity": "high", "severityRationale": "Delayed PT after meniscus repair risks poor outcome", "status": "resolved", "outstandingItemIds": ["oi-pt-referral"] }
+    ]
+  },
+  "pt-start": {
+    "milestones": [
+      { "id": "blind", "name": "Three-Point Contact", "phase": "blind", "estimatedDays": 3, "actualDays": 13, "variation": 10 },
+      { "id": "acute", "name": "Diagnosis & Treatment Plan", "phase": "acute", "estimatedDays": 14, "actualDays": 18, "variation": 4 },
+      { "id": "post-acute", "name": "Surgery Completed", "phase": "post-acute", "estimatedDays": 30, "actualDays": 32, "variation": 2 },
+      { "id": "recovery", "name": "PT Initiated", "phase": "recovery", "estimatedDays": 44, "actualDays": 46, "variation": 2 },
+      { "id": "resolution", "name": "MMI Reached", "phase": "resolution", "estimatedDays": 120, "actualDays": null, "variation": -74 }
+    ],
+    "outstandingItems": [
+      { "id": "oi-er-records", "owner": "ER Provider", "category": "Provider", "description": "Obtain ER treatment records from provider", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "deadline-driven", "terminalAt": "2025-06-12T10:00:00" },
+      { "id": "oi-contact-employer", "owner": "Adjuster", "category": "Internal", "description": "Contact employer to verify employment and incident details", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-11T09:15:00" },
+      { "id": "oi-contact-iw", "owner": "Adjuster", "category": "Internal", "description": "Contact injured worker for recorded statement", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-23T10:45:00" },
+      { "id": "oi-ortho-appt", "owner": "Adjuster", "category": "Internal", "description": "Schedule orthopedics appointment per ER referral", "createdAt": "2025-06-12T10:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-24T11:00:00" },
+      { "id": "oi-ortho-results", "owner": "Orthopedic Specialist", "category": "Provider", "description": "Obtain orthopedics results and diagnosis from specialist", "createdAt": "2025-06-24T11:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-28T13:30:00" },
+      { "id": "oi-authorize-mri", "owner": "Adjuster", "category": "Internal", "description": "Authorize MRI", "createdAt": "2025-06-28T13:30:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-07-03T10:00:00" },
+      { "id": "oi-preauth-surgery", "owner": "Adjuster", "category": "Internal", "description": "Pre-authorize surgery", "createdAt": "2025-06-28T13:30:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-07-07T15:00:00" },
+      { "id": "oi-postop-report", "owner": "Surgeon", "category": "Provider", "description": "Obtain post-op report from surgeon", "createdAt": "2025-07-12T07:00:00", "status": "completed", "urgencyType": "deadline-driven", "terminalAt": "2025-07-20T11:00:00" },
+      { "id": "oi-pt-referral", "owner": "Adjuster", "category": "Internal", "description": "Arrange PT referral", "createdAt": "2025-07-12T07:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-07-24T09:00:00" },
+      { "id": "oi-pt-attendance", "owner": "Injured Worker", "category": "IW", "description": "Confirm injured worker attends first PT session Jul 26", "createdAt": "2025-07-24T09:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-07-26T08:30:00" },
+      { "id": "oi-pt-eval", "owner": "PT Provider", "category": "Provider", "description": "Obtain initial PT evaluation from provider", "createdAt": "2025-07-26T08:30:00", "status": "open", "urgencyType": "deadline-driven", "terminalAt": null },
+      { "id": "oi-pt-review", "owner": "Adjuster", "category": "Internal", "description": "Schedule 30-day PT progress review", "createdAt": "2025-07-26T08:30:00", "status": "open", "urgencyType": "discretionary", "terminalAt": null }
+    ],
+    "careGaps": [
+      { "gapId": "cg-1", "gapType": "delayed-specialist", "gapCategory": "clinical", "createdAt": "2025-06-18T10:00:00", "createdBy": "system", "description": "Orthopedics appointment not yet scheduled — 6 days since ER referral, still no diagnosis", "severity": "high", "severityRationale": "Extended time without specialist evaluation delays treatment planning", "status": "resolved", "outstandingItemIds": ["oi-ortho-appt"] },
+      { "gapId": "cg-2", "gapType": "post-op-gap", "gapCategory": "clinical", "createdAt": "2025-07-18T10:00:00", "createdBy": "system", "description": "PT not yet scheduled — 6 days post-surgery, recovery window narrowing", "severity": "high", "severityRationale": "Delayed PT after meniscus repair risks poor outcome", "status": "resolved", "outstandingItemIds": ["oi-pt-referral"] }
+    ]
+  },
+  "pt-report-received": {
+    "milestones": [
+      { "id": "blind", "name": "Three-Point Contact", "phase": "blind", "estimatedDays": 3, "actualDays": 13, "variation": 10 },
+      { "id": "acute", "name": "Diagnosis & Treatment Plan", "phase": "acute", "estimatedDays": 14, "actualDays": 18, "variation": 4 },
+      { "id": "post-acute", "name": "Surgery Completed", "phase": "post-acute", "estimatedDays": 30, "actualDays": 32, "variation": 2 },
+      { "id": "recovery", "name": "PT Initiated", "phase": "recovery", "estimatedDays": 44, "actualDays": 46, "variation": 2 },
+      { "id": "resolution", "name": "MMI Reached", "phase": "resolution", "estimatedDays": 120, "actualDays": null, "variation": -44 }
+    ],
+    "outstandingItems": [
+      { "id": "oi-er-records", "owner": "ER Provider", "category": "Provider", "description": "Obtain ER treatment records from provider", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "deadline-driven", "terminalAt": "2025-06-12T10:00:00" },
+      { "id": "oi-contact-employer", "owner": "Adjuster", "category": "Internal", "description": "Contact employer to verify employment and incident details", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-11T09:15:00" },
+      { "id": "oi-contact-iw", "owner": "Adjuster", "category": "Internal", "description": "Contact injured worker for recorded statement", "createdAt": "2025-06-10T14:35:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-23T10:45:00" },
+      { "id": "oi-ortho-appt", "owner": "Adjuster", "category": "Internal", "description": "Schedule orthopedics appointment per ER referral", "createdAt": "2025-06-12T10:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-24T11:00:00" },
+      { "id": "oi-ortho-results", "owner": "Orthopedic Specialist", "category": "Provider", "description": "Obtain orthopedics results and diagnosis from specialist", "createdAt": "2025-06-24T11:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-06-28T13:30:00" },
+      { "id": "oi-authorize-mri", "owner": "Adjuster", "category": "Internal", "description": "Authorize MRI", "createdAt": "2025-06-28T13:30:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-07-03T10:00:00" },
+      { "id": "oi-preauth-surgery", "owner": "Adjuster", "category": "Internal", "description": "Pre-authorize surgery", "createdAt": "2025-06-28T13:30:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-07-07T15:00:00" },
+      { "id": "oi-postop-report", "owner": "Surgeon", "category": "Provider", "description": "Obtain post-op report from surgeon", "createdAt": "2025-07-12T07:00:00", "status": "completed", "urgencyType": "deadline-driven", "terminalAt": "2025-07-20T11:00:00" },
+      { "id": "oi-pt-referral", "owner": "Adjuster", "category": "Internal", "description": "Arrange PT referral", "createdAt": "2025-07-12T07:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-07-24T09:00:00" },
+      { "id": "oi-pt-attendance", "owner": "Injured Worker", "category": "IW", "description": "Confirm injured worker attends first PT session Jul 26", "createdAt": "2025-07-24T09:00:00", "status": "completed", "urgencyType": "milestone-protecting", "terminalAt": "2025-07-26T08:30:00" },
+      { "id": "oi-pt-eval", "owner": "PT Provider", "category": "Provider", "description": "Obtain initial PT evaluation from provider", "createdAt": "2025-07-26T08:30:00", "status": "completed", "urgencyType": "deadline-driven", "terminalAt": "2025-08-01T14:00:00" },
+      { "id": "oi-pt-review", "owner": "Adjuster", "category": "Internal", "description": "Schedule 30-day PT progress review", "createdAt": "2025-07-26T08:30:00", "status": "completed", "urgencyType": "discretionary", "terminalAt": "2025-08-11T10:00:00" },
+      { "id": "oi-pt-report-1", "owner": "PT Provider", "category": "Provider", "description": "Obtain 30-day PT progress report from provider", "createdAt": "2025-08-11T10:00:00", "status": "completed", "urgencyType": "deadline-driven", "terminalAt": "2025-08-25T10:00:00" },
+      { "id": "oi-pt-report-2", "owner": "PT Provider", "category": "Provider", "description": "Obtain next 30-day PT progress report from provider", "createdAt": "2025-08-25T10:00:00", "status": "open", "urgencyType": "deadline-driven", "terminalAt": null },
+      { "id": "oi-pt-review-schedule-2", "owner": "Adjuster", "category": "Internal", "description": "Schedule next 30-day PT progress review", "createdAt": "2025-08-25T10:00:00", "status": "open", "urgencyType": "discretionary", "terminalAt": null }
+    ],
+    "careGaps": [
+      { "gapId": "cg-1", "gapType": "delayed-specialist", "gapCategory": "clinical", "createdAt": "2025-06-18T10:00:00", "createdBy": "system", "description": "Orthopedics appointment not yet scheduled — 6 days since ER referral, still no diagnosis", "severity": "high", "severityRationale": "Extended time without specialist evaluation delays treatment planning", "status": "resolved", "outstandingItemIds": ["oi-ortho-appt"] },
+      { "gapId": "cg-2", "gapType": "post-op-gap", "gapCategory": "clinical", "createdAt": "2025-07-18T10:00:00", "createdBy": "system", "description": "PT not yet scheduled — 6 days post-surgery, recovery window narrowing", "severity": "high", "severityRationale": "Delayed PT after meniscus repair risks poor outcome", "status": "resolved", "outstandingItemIds": ["oi-pt-referral"] }
+    ]
+  }
+}
