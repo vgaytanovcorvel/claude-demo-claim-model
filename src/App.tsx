@@ -7,7 +7,7 @@ import ClaimState from './components/ClaimState'
 import './App.css'
 
 const events: ClaimEvent[] = claimEvents;
-const states: Record<string, Claim> = claimStates;
+const states = claimStates as unknown as Record<string, Claim>;
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
