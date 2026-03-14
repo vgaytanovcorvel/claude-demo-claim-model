@@ -14,7 +14,7 @@ client = genai.Client(
     location=_LOCATION,
 )
 
-MODEL = "gemini-2.5-pro"
+MODEL = "gemini-2.5-flash"
 
 
 def generate(prompt: str) -> str:

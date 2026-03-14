@@ -8,6 +8,7 @@ dependencies = [
     "google-cloud-aiplatform>=1.141.0",
     "google-genai>=1.14.0",
     "pydantic>=2.12.5",
+    "pyyaml>=6.0",
     "python-dotenv>=1.2.2",
 ]
 
