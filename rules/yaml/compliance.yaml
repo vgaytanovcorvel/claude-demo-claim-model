@@ -5,10 +5,6 @@ description: >-
 
 close_rules:
   - when: >-
-      the required filing or report has been
-      submitted and acknowledged by the regulatory body
-  - when: an audit has been completed and findings resolved
-  - when: >-
       the statutory deadline has been met with
       documented evidence of compliance
 
@@ -23,27 +19,65 @@ cancel_rules:
       compliance items simply because they are difficult or
       time-consuming — regulatory obligations must be met
 
+sub_categories:
+  - name: regulatory-filing
+    close_rules:
+      - when: filing submitted and acknowledged by regulatory body
+    cancel_rules:
+      - when: regulatory change eliminates requirement
+  - name: jurisdictional-notice
+    close_rules:
+      - when: notice mailed with proof of service
+    cancel_rules:
+      - when: claim withdrawn before obligation arises
+  - name: audit
+    close_rules:
+      - when: audit completed and findings resolved
+    cancel_rules:
+      - when: regulatory body cancels or rescinds audit
+  - name: benefit-notice
+    close_rules:
+      - when: notices generated and sent within timeframe
+    cancel_rules:
+      - when: claim withdrawn before obligation arises
+  - name: osha-reporting
+    close_rules:
+      - when: OSHA log completed and reports filed
+    cancel_rules:
+      - when: regulatory change eliminates requirement
+  - name: acceptance-denial-letter
+    close_rules:
+      - when: letter issued within statutory window
+    cancel_rules:
+      - when: claim withdrawn before obligation arises
+
 open_rules:
   preamble: >-
     Only open items when the event contains a concrete compliance trigger.
     Each item must describe a specific, actionable task — not a vague category.
   triggers:
     - when: Regulatory filing deadline triggered by claim event
+      sub_category: regulatory-filing
       action: >-
         open item to prepare and submit the required filing
     - when: Jurisdictional notice required for claimant or employer
+      sub_category: jurisdictional-notice
       action: >-
         open item to draft, review, and mail notice with proof of service
     - when: Audit or review mandated by regulatory body
+      sub_category: audit
       action: >-
         open item to compile documentation and schedule review
     - when: Statutory benefit notices due to the claimant
+      sub_category: benefit-notice
       action: >-
         open item to generate and send notices within statutory timeframe
     - when: OSHA reporting triggered by workplace injury
+      sub_category: osha-reporting
       action: >-
         open item for employer to complete OSHA log and file required reports
     - when: Acceptance or denial letter deadline approaching
+      sub_category: acceptance-denial-letter
       action: >-
         open item to issue acceptance or denial letter within statutory window
   exclusions:

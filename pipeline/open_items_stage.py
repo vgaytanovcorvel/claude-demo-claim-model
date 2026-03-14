@@ -19,9 +19,13 @@ def _make_add_open_item_tool(
     """Create an add_open_item tool closure capturing delta and category."""
 
     def add_open_item(
-        todo_item_id: str, description: str, owner: str, urgency_type: str
+        todo_item_id: str,
+        description: str,
+        owner: str,
+        urgency_type: str,
+        sub_category: str = "",
     ) -> str:
-        """Add a new open todo item. Provide a unique ID, description, owner (the party responsible for executing this item: adjuster, employer, provider, injured-worker, or other), and urgency type (milestone-protecting, deadline-driven, or discretionary)."""
+        """Add a new open todo item. Provide a unique ID, description, owner (the party responsible for executing this item: adjuster, employer, provider, injured-worker, or other), urgency type (milestone-protecting, deadline-driven, or discretionary), and optionally a sub_category."""
         item = TodoItem(
             todo_item_id=todo_item_id,
             created_at=datetime.now(timezone.utc),
@@ -30,6 +34,7 @@ def _make_add_open_item_tool(
             owner=Owner(owner),
             urgency_type=UrgencyType(urgency_type),
             category=rules.category,
+            sub_category=sub_category or None,
         )
         delta.open_items.add.append(item)
         return f"Added open item '{todo_item_id}' in category '{rules.category}'."

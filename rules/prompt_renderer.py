@@ -8,6 +8,7 @@ class PromptRenderer:
     def render_close_cancel(spec: CategoryRuleSpec) -> str:
         category_upper = spec.category.value.upper()
         has_defaults = spec.defaults.reason is not None or spec.defaults.notes
+        has_sub_categories = len(spec.sub_categories) > 0
 
         parts: list[str] = []
 
@@ -18,7 +19,9 @@ class PromptRenderer:
         )
 
         # Closing rules
-        if has_defaults:
+        if has_sub_categories:
+            parts.append("SHARED CLOSING RULES (apply to all items):\n")
+        elif has_defaults:
             parts.append("CLOSING RULES (task was completed successfully):\n")
         else:
             parts.append("CLOSING RULES:\n")
@@ -36,7 +39,9 @@ class PromptRenderer:
         parts.append("\n")
 
         # Cancellation rules
-        if has_defaults:
+        if has_sub_categories:
+            parts.append("SHARED CANCELLATION RULES (apply to all items):\n")
+        elif has_defaults:
             parts.append("CANCELLATION RULES (task became unnecessary):\n")
         else:
             parts.append("CANCELLATION RULES:\n")
@@ -55,6 +60,34 @@ class PromptRenderer:
                 parts.append(line + "\n")
 
         parts.append("\n")
+
+        # Sub-category specific rules
+        if has_sub_categories:
+            for sc in spec.sub_categories:
+                if sc.close_rules or sc.cancel_rules:
+                    parts.append(f'RULES FOR "{sc.name}" ITEMS:\n')
+                    if sc.close_rules:
+                        for rule in sc.close_rules:
+                            line = f"- Close when {rule.when}."
+                            if rule.detail:
+                                line += f" {rule.detail}"
+                            parts.append(line + "\n")
+                    if sc.cancel_rules:
+                        for rule in sc.cancel_rules:
+                            if rule.never:
+                                parts.append(f"- Do NOT cancel {rule.never}.\n")
+                            elif rule.when:
+                                line = f"- Cancel when {rule.when}."
+                                if rule.example:
+                                    line += f" (e.g., {rule.example})"
+                                parts.append(line + "\n")
+                    parts.append("\n")
+
+            parts.append(
+                "When evaluating an item, first check if its sub_category has "
+                "specific rules above. If so, apply those rules. If not (or if "
+                "no sub_category is set), apply the shared rules.\n\n"
+            )
 
         # Defaults / IMPORTANT section
         if has_defaults:
@@ -87,6 +120,7 @@ class PromptRenderer:
             any(t.mandatory for t in open_rules.triggers)
             or open_rules.duplication_rules
         )
+        has_trigger_sub_cats = any(t.sub_category for t in open_rules.triggers)
 
         parts: list[str] = []
 
@@ -115,7 +149,12 @@ class PromptRenderer:
                 "non-discretionary:\n"
             )
             for trigger in mandatory_triggers:
-                parts.append(f"- {trigger.when} \u2192 {trigger.action}.\n")
+                line = f"- {trigger.when}"
+                if trigger.sub_category:
+                    line += f" \u2192 [sub_category: {trigger.sub_category}] {trigger.action}."
+                else:
+                    line += f" \u2192 {trigger.action}."
+                parts.append(line + "\n")
             # Description format from duplication rules
             if open_rules.duplication_rules:
                 for name, dup_set in open_rules.duplication_rules.items():
@@ -140,7 +179,13 @@ class PromptRenderer:
         if action_triggers:
             parts.append("Valid triggers and the items they produce:\n")
             for trigger in action_triggers:
-                parts.append(f"- {trigger.when} \u2192 {trigger.action}.\n")
+                if trigger.sub_category:
+                    parts.append(
+                        f"- {trigger.when} \u2192 [sub_category: {trigger.sub_category}] "
+                        f"{trigger.action}.\n"
+                    )
+                else:
+                    parts.append(f"- {trigger.when} \u2192 {trigger.action}.\n")
             parts.append("\n")
 
         # Exclusions
@@ -167,6 +212,14 @@ class PromptRenderer:
             parts.append(f"- {og.owner.value}: for {og.when}.\n")
 
         parts.append("\n")
+
+        # Sub-category footer
+        if has_trigger_sub_cats:
+            parts.append(
+                "SUB-CATEGORY ASSIGNMENT:\n"
+                "When a trigger specifies [sub_category: <name>], pass that value "
+                "as the sub_category parameter to add_open_item.\n\n"
+            )
 
         # Footer
         parts.append(

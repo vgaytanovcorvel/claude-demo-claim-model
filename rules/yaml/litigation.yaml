@@ -11,16 +11,6 @@ close_rules:
     detail: >-
       Match the item's description to the
       event — do not close based on loosely related activity.
-  - when: >-
-      Examples of valid closes: 'prepare deposition exhibits' closes when the
-      event states exhibits were assembled and delivered to counsel;
-      'file response to motion for summary judgment' closes when the response
-      was filed with the court
-  - when: >-
-      A case-level settlement or final judgment closes only items whose task
-      is specifically rendered complete by that outcome (e.g., 'negotiate
-      settlement terms'). It does NOT automatically close all litigation items —
-      post-settlement tasks like 'file stipulation of dismissal' may still be open
 
 cancel_rules:
   - when: >-
@@ -29,14 +19,36 @@ cancel_rules:
     example: >-
       'opposing counsel withdrew the motion', 'deposition cancelled
       by agreement of parties'
-  - when: >-
-      a settlement or dismissal makes the specific pending
-      task moot — but only if the event clearly eliminates the need for that task.
-      Do not cancel preparation or coordination items that may still be needed
-      for post-resolution proceedings
   - never: >-
       an item based on inference about legal strategy. The event
       must explicitly state the step is withdrawn, waived, or no longer required
+
+sub_categories:
+  - name: attorney-representation
+    close_rules:
+      - when: representation acknowledged and defense counsel assigned
+    cancel_rules:
+      - when: representation withdrawn by claimant
+  - name: lawsuit-response
+    close_rules:
+      - when: response filed with the court
+    cancel_rules:
+      - when: case dismissed or settled before response due
+  - name: subpoena-response
+    close_rules:
+      - when: subpoena complied with or successfully quashed
+    cancel_rules:
+      - when: subpoena withdrawn by issuing party
+  - name: hearing-preparation
+    close_rules:
+      - when: preparation completed and event attended
+    cancel_rules:
+      - when: hearing or deposition cancelled by agreement of parties
+  - name: court-order-compliance
+    close_rules:
+      - when: ordered action completed
+    cancel_rules:
+      - when: order vacated or reversed on appeal
 
 defaults:
   when_in_doubt: leave_open
@@ -53,18 +65,23 @@ open_rules:
     Each item must describe a specific, actionable task — not a vague category.
   triggers:
     - when: Formal notice of attorney representation received
+      sub_category: attorney-representation
       action: >-
         open item to acknowledge representation and assign defense counsel
     - when: Lawsuit, complaint, or petition filed
+      sub_category: lawsuit-response
       action: >-
         open item for each required response (e.g., 'file answer to complaint by [deadline]')
     - when: Subpoena served
+      sub_category: subpoena-response
       action: open item to respond to or comply with the subpoena
     - when: Deposition, hearing, or mediation scheduled
+      sub_category: hearing-preparation
       action: >-
         open a preparation item (e.g., 'prepare exhibits for deposition of [witness]')
         and an attendance item if adjuster presence is required
     - when: Court order requiring action
+      sub_category: court-order-compliance
       action: open item for each specific action ordered
   exclusions:
     - Casual mentions of attorneys or legal topics without a concrete action needed.

@@ -5,18 +5,57 @@ description: >-
 
 close_rules:
   - when: >-
-      the event confirms the treatment was completed
-      (e.g., surgery performed, therapy session finished, test results received)
-  - when: >-
       a medical professional confirms the claimant
       has reached maximum medical improvement
 
 cancel_rules:
-  - when: >-
-      a medical professional determines the treatment
-      is no longer medically necessary
   - when: the claimant declines or withdraws from treatment
-  - when: a superseding treatment plan replaces it
+
+sub_categories:
+  - name: acute-care
+    close_rules:
+      - when: initial diagnosis established and care plan set
+    cancel_rules:
+      - when: injury determined to not require treatment
+  - name: treatment-plan
+    close_rules:
+      - when: treatment plan verified by adjuster
+    cancel_rules:
+      - when: diagnosis changed invalidating the plan
+      - when: superseding plan replaces it
+  - name: authorization
+    close_rules:
+      - when: authorization granted or denied with decision documented
+    cancel_rules:
+      - when: treatment no longer medically necessary
+      - when: claimant declines authorization
+  - name: pre-surgical-authorization
+    close_rules:
+      - when: surgical authorization granted
+    cancel_rules:
+      - when: surgery recommendation withdrawn
+      - when: superseding treatment replaces it
+  - name: surgical-scheduling
+    close_rules:
+      - when: surgery performed
+    cancel_rules:
+      - when: surgery authorization denied
+      - when: surgery recommendation withdrawn
+  - name: post-op-rehab
+    close_rules:
+      - when: rehab plan established and initiated
+    cancel_rules:
+      - when: surgery cancelled
+      - when: claimant declines rehab
+  - name: follow-up-care
+    close_rules:
+      - when: follow-up appointments completed
+    cancel_rules:
+      - when: claimant declines follow-up
+      - when: treatment no longer necessary
+  - name: mmi-evaluation
+    close_rules:
+      - when: final medical report obtained and impairment rating coordinated
 
 open_rules:
   preamble: >-
@@ -24,22 +63,28 @@ open_rules:
     Each item must describe a specific, actionable task — not a vague category.
   triggers:
     - when: First notice of loss (FNOL) received with reported injury
+      sub_category: acute-care
       action: >-
         open item to advise acute care and await initial diagnosis
     - when: Diagnosis established or changed by treating physician
+      sub_category: treatment-plan
       action: >-
         open item to verify treatment plan and schedule follow-up appointments
     - when: New treatment prescribed (medication, therapy, procedure)
+      sub_category: authorization
       action: >-
         open item for authorization review and confirm scheduling
     - when: Surgery recommended by treating physician
+      sub_category: pre-surgical-authorization
       action: >-
         open items for pre-surgical authorization, surgical scheduling,
         and post-operative rehabilitation plan
     - when: Follow-up care recommended after a procedure
+      sub_category: follow-up-care
       action: >-
         open item to schedule specific follow-up appointments and track completion
     - when: Maximum medical improvement (MMI) reached
+      sub_category: mmi-evaluation
       action: >-
         open item to obtain final medical report and coordinate impairment rating
   exclusions:

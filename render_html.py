@@ -22,10 +22,12 @@ def _category_class(category: str) -> str:
 
 
 def _render_todo_row(item: TodoItem) -> str:
+    sub_cat = _esc(item.sub_category) if item.sub_category else ""
     return (
         f"<tr class='{_category_class(item.category)}' data-category='{_esc(item.category)}'>"
         f"<td class='mono'>{_esc(item.todo_item_id)}</td>"
         f"<td><span class='badge badge-{item.category}'>{_esc(item.category)}</span></td>"
+        f"<td>{sub_cat}</td>"
         f"<td>{_esc(item.description)}</td>"
         f"<td>{_esc(item.owner)}</td>"
         f"<td><span class='badge badge-{item.status}'>{_esc(item.status)}</span></td>"
@@ -42,7 +44,7 @@ def _render_todo_table(items: list[TodoItem], title: str) -> str:
     return (
         f"<table>"
         f"<thead><tr>"
-        f"<th>ID</th><th>Category</th><th>Description</th>"
+        f"<th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th>"
         f"<th>Owner</th><th>Status</th><th>Urgency</th>"
         f"<th>Created</th><th>Terminal</th>"
         f"</tr></thead>"

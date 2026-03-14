@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest.mock import patch
 
 from models.claim_event import ClaimEvent
@@ -9,7 +10,10 @@ from pipeline.close_cancel_stage import (
     _make_close_tool,
     close_cancel_stage,
 )
-from rules.treatment_rules import TREATMENT_RULES
+from rules.yaml_loader import YamlRuleLoader
+
+YAML_DIR = Path(__file__).resolve().parent.parent / "rules" / "yaml"
+TREATMENT_RULES = YamlRuleLoader.load(YAML_DIR / "treatment.yaml")
 
 
 def test_close_tool_mutates_delta(
@@ -91,7 +95,7 @@ def test_skips_when_no_category_items(
     sample_claim_state: ClaimState,
 ):
     """Stage should return delta unchanged when no open items match the category."""
-    from rules.litigation_rules import LITIGATION_RULES
+    LITIGATION_RULES = YamlRuleLoader.load(YAML_DIR / "litigation.yaml")
 
     delta = ClaimStateDelta()
 

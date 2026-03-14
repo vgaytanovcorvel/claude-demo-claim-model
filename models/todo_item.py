@@ -17,3 +17,4 @@ class TodoItem(BaseModel):
     owner: Owner
     urgency_type: UrgencyType
     category: TodoItemCategory
+    sub_category: str | None = None
