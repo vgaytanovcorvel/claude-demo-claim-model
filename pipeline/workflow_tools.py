@@ -14,7 +14,8 @@ from prompt_telemetry import log_tool_call
 
 
 def make_add_open_item_tool(
-    delta: ClaimStateDelta, category: TodoItemCategory, workflow_id: str
+    delta: ClaimStateDelta, category: TodoItemCategory, workflow_id: str,
+    event_id: str,
 ) -> Callable:
     """Create an add_open_item tool closure."""
 
@@ -30,6 +31,7 @@ def make_add_open_item_tool(
         item = TodoItem(
             todo_item_id=todo_item_id,
             created_at=datetime.now(timezone.utc),
+            created_by_event_id=event_id,
             status=TodoItemStatus.OPEN,
             description=description,
             owner=Owner(owner),
@@ -60,7 +62,7 @@ def make_add_open_item_tool(
 
 def make_close_tool(
     state: ClaimState, delta: ClaimStateDelta, category: TodoItemCategory,
-    workflow_id: str,
+    workflow_id: str, event_id: str,
 ) -> Callable:
     """Create a close_todo_item tool closure."""
 
@@ -85,6 +87,7 @@ def make_close_tool(
             update={
                 "status": TodoItemStatus.CLOSED,
                 "terminal_at": datetime.now(timezone.utc),
+                "terminated_by_event_id": event_id,
             }
         )
         delta.closed_items.add.append(closed_item)
@@ -103,7 +106,7 @@ def make_close_tool(
 
 def make_cancel_tool(
     state: ClaimState, delta: ClaimStateDelta, category: TodoItemCategory,
-    workflow_id: str,
+    workflow_id: str, event_id: str,
 ) -> Callable:
     """Create a cancel_todo_item tool closure."""
 
@@ -128,6 +131,7 @@ def make_cancel_tool(
             update={
                 "status": TodoItemStatus.CANCELLED,
                 "terminal_at": datetime.now(timezone.utc),
+                "terminated_by_event_id": event_id,
             }
         )
         delta.closed_items.add.append(cancelled_item)

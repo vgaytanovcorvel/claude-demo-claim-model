@@ -26,6 +26,7 @@ def run_workflow(
     """Execute a single workflow: one LLM call with all 4 tools."""
     category = workflow.category
     wf_id = workflow.workflow_id
+    evt_id = event.claim_event_id
 
     log_workflow(
         workflow_id=wf_id,
@@ -34,9 +35,9 @@ def run_workflow(
     )
 
     tools = [
-        make_add_open_item_tool(delta, category, wf_id),
-        make_close_tool(state, delta, category, wf_id),
-        make_cancel_tool(state, delta, category, wf_id),
+        make_add_open_item_tool(delta, category, wf_id, evt_id),
+        make_close_tool(state, delta, category, wf_id, evt_id),
+        make_cancel_tool(state, delta, category, wf_id, evt_id),
         make_start_workflow_tool(event, state, delta, depth, max_depth, parent_workflow_id=wf_id),
     ]
 

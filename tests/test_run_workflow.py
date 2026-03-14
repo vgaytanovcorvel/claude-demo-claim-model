@@ -60,9 +60,11 @@ def test_run_workflow_tools_work(
 
     assert len(result.open_items.add) == 1
     assert result.open_items.add[0].todo_item_id == "todo-new"
+    assert result.open_items.add[0].created_by_event_id == "evt-001"
     assert len(result.open_items.delete) == 1
     assert "todo-001" in result.open_items.delete
     assert len(result.closed_items.add) == 1
+    assert result.closed_items.add[0].terminated_by_event_id == "evt-001"
 
 
 @patch("pipeline.run_workflow.log_workflow")
