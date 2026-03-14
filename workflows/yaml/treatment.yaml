@@ -10,37 +10,60 @@ branches:
     instructions: >-
       Close any existing acute-care items that are superseded by the new FNOL
       information. Open an item to receive initial diagnosis (sub_category:
-      acute-care, owner: provider, deadline: 3 business days from FNOL).
+      acute-care, owner: provider, urgency: milestone-protecting, deadline:
+      3 business days from FNOL).
 
   - name: diagnosis-and-treatment
     trigger: Diagnosis and treatment plan established or changed by treating physician
     instructions: >-
-      Cancel any existing treatment plan items superseded by the new diagnosis and treatment plan.
-      Open an item for authorization review (sub_category: authorization, owner: adjuster, deadline: 5 business days from diagnosis).      
+      Close the acute-care item if one exists (diagnosis has been received).
+      Cancel any existing authorization or treatment-monitoring items that are
+      superseded by the new diagnosis and treatment plan.
+      Open an item for authorization review (sub_category: authorization,
+      owner: adjuster, urgency: deadline-driven, deadline: 5 business days
+      from diagnosis).
+
+  - name: treatment-plan-changed
+    trigger: Treatment plan changed by physician without a new diagnosis
+    instructions: >-
+      Cancel any existing authorization or treatment-monitoring items for the
+      prior treatment plan. Open an item for authorization review of the new
+      plan (sub_category: authorization, owner: adjuster, urgency:
+      deadline-driven, deadline: 5 business days from plan change).
 
   - name: diagnostic-test-authorized
     trigger: New diagnostic test authorized
     instructions: >-
-      Close the authorization item for this diagnostic test if one exists. 
-      Open item to monitor diagnostic test completion (sub_category: treatment-monitoring, owner: injured-worker, deadline: 5 business days from authorization).
+      Close the authorization item for this diagnostic test if one exists.
+      Open item to monitor diagnostic test completion (sub_category:
+      treatment-monitoring, owner: injured-worker, urgency: deadline-driven,
+      deadline: 5 business days from authorization).
 
   - name: diagnostic-test-performed
-    trigger: Diagnostic test performed
+    trigger: Diagnostic test performed or results received
     instructions: >-
-      Close the treatment-monitoring item for this item if one exists.
+      Close the treatment-monitoring item for this diagnostic test if one
+      exists.
 
   - name: intervention-authorized
     trigger: New intervention authorized (medication, therapy, procedure)
     instructions: >-
-      Close the authorization item for this intervention if one exists. 
-      If surgery, open items for surgical scheduling (sub_category: surgical-scheduling, owner: adjuster) and post-operative rehabilitation plan review (sub_category: post-op-rehab, owner: adjuster, due date 15 business days from authorization).
-      Open item to monitor intervention completion (sub_category: treatment-monitoring, owner: injured-worker, deadline: 5 business days from authorization, then each 10 business days).
+      Close the authorization item for this intervention if one exists.
+      If surgery, open items for surgical scheduling (sub_category:
+      surgical-scheduling, owner: adjuster, urgency: milestone-protecting)
+      and post-operative rehabilitation plan review (sub_category:
+      post-op-rehab, owner: adjuster, urgency: discretionary, deadline:
+      15 business days from authorization).
+      Open item to monitor intervention completion (sub_category:
+      treatment-monitoring, owner: injured-worker, urgency: deadline-driven,
+      deadline: 5 business days from authorization).
 
   - name: intervention-performed
-    trigger: Intervention initiated
+    trigger: Intervention performed or completed
     instructions: >-
       Close the treatment-monitoring item for this intervention if one exists.
-      If surgery performed, close the surgical-scheduling for this item.
+      If surgery performed, close the surgical-scheduling item for this
+      surgery.
 
   - name: rehabilitation-plan-reviewed
     trigger: Rehabilitation plan reviewed
@@ -51,15 +74,16 @@ branches:
     trigger: Follow-up care recommended after a procedure
     instructions: >-
       Open an item to schedule specific follow-up appointments and track
-      completion (sub_category: follow-up-care, owner: adjuster, deadline: 5 business days from recommendation).
+      completion (sub_category: follow-up-care, owner: adjuster, urgency:
+      discretionary, deadline: 5 business days from recommendation).
 
   - name: mmi-reached
     trigger: Maximum medical improvement (MMI) reached
     instructions: >-
       Close any remaining treatment-monitoring items. Open an item to obtain
       final medical report and coordinate impairment rating (sub_category:
-      mmi-evaluation, owner: adjuster, deadline: 14 business days from MMI
-      determination).
+      mmi-evaluation, owner: adjuster, urgency: milestone-protecting,
+      deadline: 14 business days from MMI determination).
 
   - name: treatment-completed
     trigger: Treatment completed or discontinued with documented outcome
@@ -72,9 +96,10 @@ branches:
       Cancel any open treatment items related to the declined treatment.
 
   - name: authorization-denied
-    trigger: Treatment authorization revoked or denied on review
+    trigger: Treatment or diagnostic test authorization revoked or denied on review
     instructions: >-
-      Cancel the treatment-monitoring item for this treatment.
+      Cancel the authorization item for this treatment or test if one still
+      exists. Cancel the treatment-monitoring item if one exists.
 
 exclusions:
   - administrative or financial tasks -- those belong in other categories
