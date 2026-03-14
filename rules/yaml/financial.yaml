@@ -11,39 +11,50 @@ close_rules:
     detail: >-
       Match the item's description
       to the event — do not close based on loosely related financial activity.
-  - when: >-
-      the event confirms the payment was issued
-      by the payer (not merely requested or approved)
-    applies_to: payment items
-  - when: >-
-      the event confirms reserves were
-      evaluated and the reserve figure was set or affirmed — whether changed or
-      left unchanged after review
-    applies_to: reserve review items
-  - when: >-
-      the event confirms wage data
-      was received and the average weekly wage was calculated
-    applies_to: wage verification items
-  - when: >-
-      the event confirms the settlement
-      agreement was signed by all parties
-    applies_to: settlement items
 
 cancel_rules:
-  - when: >-
-      the event explicitly states the
-      benefit or expense was denied and no appeal is being pursued
-    applies_to: a payment or expense item
   - when: >-
       the event explicitly states it has been replaced
       by a specific named alternative
     example: "'lump-sum settlement replaces ongoing indemnity payments'"
-  - never: >-
-      reserve review items — reserves must always be reviewed
-      when triggered, even if the expected outcome changes
-  - never: >-
-      based on assumption that a denial is final. If the event
-      mentions an appeal or dispute, the item stays open
+
+sub_categories:
+  - name: reserve-review
+    close_rules:
+      - when: >-
+          reserve review performed and reserves updated or explicitly
+          affirmed at their current level
+    cancel_rules:
+      - never: >-
+          reserve review items — reserves must always be reviewed
+          when triggered, even if the expected outcome changes
+  - name: wage-verification
+    close_rules:
+      - when: wage data received and average weekly wage calculated
+    cancel_rules:
+      - when: claim withdrawn before wages verified
+  - name: expense-payment
+    close_rules:
+      - when: payment issued by payer
+    cancel_rules:
+      - when: benefit or expense denied with no appeal being pursued
+  - name: subrogation
+    close_rules:
+      - when: >-
+          subrogation investigation completed and recovery decision made
+    cancel_rules:
+      - when: third-party liability disproven
+  - name: recovery
+    close_rules:
+      - when: recovery or offset processed
+    cancel_rules:
+      - when: overpayment determination reversed
+  - name: settlement-processing
+    close_rules:
+      - when: settlement check issued and agreement signed
+    cancel_rules:
+      - when: settlement negotiations collapse
+      - when: replaced by alternative settlement approach
 
 defaults:
   when_in_doubt: leave_open
@@ -56,41 +67,35 @@ open_rules:
     Only open items when the event contains a concrete financial trigger.
     Each item must describe a specific, actionable task — not a vague category.
   triggers:
-    - when: New diagnosis, change in diagnosis, or additional body part claimed
+    - when: >-
+        Any material change that could affect claim value — including but not
+        limited to: new or changed diagnosis, additional body part claimed,
+        surgery recommended/approved/performed, treatment plan extended or
+        escalated, return-to-work timeline delayed, permanent impairment
+        rating assigned or changed, settlement discussions initiated,
+        litigation filed or attorney representation noticed, claim denied
+        or disputed or appealed
       mandatory: true
-      action: open reserve review item referencing the new or changed diagnosis
-    - when: Surgery recommended, approved, or performed
-      mandatory: true
-      action: open reserve review item referencing the surgical procedure
-    - when: Treatment plan extended, escalated, or materially changed
-      mandatory: true
-      action: open reserve review item referencing the treatment plan change
-    - when: Return-to-work timeline delayed or materially revised
-      mandatory: true
-      action: open reserve review item referencing the revised RTW timeline
-    - when: Permanent impairment rating assigned or changed
-      mandatory: true
-      action: open reserve review item referencing the impairment rating
-    - when: Settlement discussions initiated or settlement demand received
-      mandatory: true
-      action: open reserve review item referencing the settlement activity
-    - when: Litigation filed or attorney representation noticed
-      mandatory: true
-      action: open reserve review item referencing the litigation or representation change
-    - when: Claim denied, disputed, or appealed
-      mandatory: true
-      action: open reserve review item referencing the denial, dispute, or appeal
+      sub_category: reserve-review
+      action: >-
+        open a single reserve review item (or keep the existing one open)
+        so the adjuster reviews and updates reserves
     - when: Initial claim filed
+      sub_category: wage-verification
       action: >-
         open item for wage verification and average weekly wage calculation
     - when: Medical treatment authorized or provided with a specific bill or cost mentioned
+      sub_category: expense-payment
       action: >-
         open item for expense approval or payment processing
     - when: Third-party liability identified
+      sub_category: subrogation
       action: open subrogation investigation item
     - when: Overpayment identified
+      sub_category: recovery
       action: open recovery/offset item
     - when: Settlement terms agreed
+      sub_category: settlement-processing
       action: open item for settlement check processing
   exclusions:
     - >-
@@ -99,24 +104,6 @@ open_rules:
     - "Medical, employment, or compliance tasks — those belong in other categories."
     - Tasks that duplicate an existing open item.
     - Speculative future costs not yet incurred or authorized.
-  duplication_rules:
-    RESERVE REVIEW DUPLICATION RULES:
-      description_format: >-
-        The reserve review item description must reference the specific trigger
-        (e.g., 'review reserves — surgery approved for rotator cuff repair').
-      rules:
-        - >-
-          If an open reserve review item already exists for a DIFFERENT trigger,
-          open a new one — each material change requires its own review. For example,
-          an existing 'review reserves — new diagnosis' does NOT satisfy the need for
-          'review reserves — surgery approved'.
-        - >-
-          If an open reserve review item already exists for the SAME trigger
-          (same circumstance change from the same event), do NOT open a duplicate.
-        - >-
-          Compare triggers by substance, not exact wording. 'Review reserves —
-          rotator cuff surgery approved' and 'review reserves — surgery authorized
-          for left shoulder' are the same trigger and should not be duplicated.
 
 owner_guidance:
   - owner: adjuster

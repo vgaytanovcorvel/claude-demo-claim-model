@@ -71,6 +71,72 @@ class TestYamlSchemaValidation:
             )
 
 
+# ── Sub-category validation ──────────────────────────────────────────
+
+
+@pytest.mark.parametrize("yaml_path", YAML_FILES, ids=YAML_IDS)
+class TestSubCategoryValidation:
+    def _load_spec(self, yaml_path: Path) -> CategoryRuleSpec:
+        raw = yaml.safe_load(yaml_path.read_text(encoding="utf-8"))
+        return CategoryRuleSpec(**raw)
+
+    def test_has_sub_categories(self, yaml_path: Path):
+        spec = self._load_spec(yaml_path)
+        assert len(spec.sub_categories) > 0, (
+            f"{yaml_path.stem} should have sub_categories defined"
+        )
+
+    def test_sub_category_names_unique(self, yaml_path: Path):
+        spec = self._load_spec(yaml_path)
+        names = [sc.name for sc in spec.sub_categories]
+        assert len(names) == len(set(names)), (
+            f"{yaml_path.stem} has duplicate sub_category names"
+        )
+
+    def test_trigger_sub_categories_reference_valid_names(self, yaml_path: Path):
+        spec = self._load_spec(yaml_path)
+        valid_names = {sc.name for sc in spec.sub_categories}
+        for trigger in spec.open_rules.triggers:
+            if trigger.sub_category is not None:
+                assert trigger.sub_category in valid_names, (
+                    f"{yaml_path.stem}: trigger sub_category "
+                    f"'{trigger.sub_category}' not in {valid_names}"
+                )
+
+    def test_all_triggers_have_sub_category(self, yaml_path: Path):
+        spec = self._load_spec(yaml_path)
+        for trigger in spec.open_rules.triggers:
+            assert trigger.sub_category is not None, (
+                f"{yaml_path.stem}: trigger '{trigger.when}' missing sub_category"
+            )
+
+    def test_sub_categories_have_close_or_cancel_rules(self, yaml_path: Path):
+        spec = self._load_spec(yaml_path)
+        for sc in spec.sub_categories:
+            assert sc.close_rules or sc.cancel_rules, (
+                f"{yaml_path.stem}: sub_category '{sc.name}' has no close or cancel rules"
+            )
+
+    def test_close_cancel_prompt_has_sub_category_sections(self, yaml_path: Path):
+        spec = self._load_spec(yaml_path)
+        prompt = PromptRenderer.render_close_cancel(spec)
+        assert "SHARED CLOSING RULES" in prompt
+        assert "SHARED CANCELLATION RULES" in prompt
+        for sc in spec.sub_categories:
+            if sc.close_rules or sc.cancel_rules:
+                assert sc.name in prompt, (
+                    f"Sub-category '{sc.name}' not rendered in close_cancel prompt"
+                )
+
+    def test_open_items_prompt_has_sub_category_labels(self, yaml_path: Path):
+        spec = self._load_spec(yaml_path)
+        prompt = PromptRenderer.render_open_items(spec)
+        assert "sub_category" in prompt
+        for trigger in spec.open_rules.triggers:
+            if trigger.sub_category:
+                assert trigger.sub_category in prompt
+
+
 # ── All five categories are present ──────────────────────────────────
 
 
@@ -180,27 +246,26 @@ class TestFinancialSpecific:
     def test_has_mandatory_triggers(self):
         spec = self._load_financial()
         mandatory = [t for t in spec.open_rules.triggers if t.mandatory]
-        assert len(mandatory) == 8
+        assert len(mandatory) == 1
 
     def test_has_action_triggers(self):
         spec = self._load_financial()
         action_triggers = [t for t in spec.open_rules.triggers if t.action]
-        assert len(action_triggers) == 13
+        assert len(action_triggers) == 6
 
-    def test_has_duplication_rules(self):
+    def test_no_duplication_rules(self):
         spec = self._load_financial()
-        assert spec.open_rules.duplication_rules is not None
-        assert len(spec.open_rules.duplication_rules) > 0
+        assert spec.open_rules.duplication_rules is None
 
     def test_mandatory_triggers_in_prompt(self):
         spec = self._load_financial()
         prompt = PromptRenderer.render_open_items(spec)
         assert "MANDATORY RESERVE REVIEW TRIGGERS" in prompt
 
-    def test_duplication_rules_in_prompt(self):
+    def test_no_duplication_rules_in_prompt(self):
         spec = self._load_financial()
         prompt = PromptRenderer.render_open_items(spec)
-        assert "DUPLICATION RULES" in prompt
+        assert "DUPLICATION RULES" not in prompt
 
     def test_defaults_important_section(self):
         spec = self._load_financial()
