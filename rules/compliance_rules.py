@@ -1,5 +1,6 @@
 from models.todo_item_category import TodoItemCategory
 from rules.category_rules import CategoryRules
+from rules.owner_guidance import OWNER_GUIDANCE_PREAMBLE
 
 COMPLIANCE_RULES = CategoryRules(
     category=TodoItemCategory.COMPLIANCE,
@@ -36,6 +37,11 @@ COMPLIANCE_RULES = CategoryRules(
         "- Open a compliance item when statutory benefit notices are due to the claimant.\n"
         "- Do NOT open compliance items for treatment, employment, or financial tasks.\n"
         "- Do NOT duplicate any existing open items.\n\n"
+        + OWNER_GUIDANCE_PREAMBLE
+        + "- adjuster: for most compliance items (filing reports, meeting statutory deadlines, "
+        "sending required notices).\n"
+        "- employer: for items requiring employer regulatory action (OSHA reporting, "
+        "workplace safety compliance).\n\n"
         "Based on the provided claim event, create new compliance todo items. "
         "Use add_open_item to create each new item. "
         "Valid urgency types are: milestone-protecting, deadline-driven, discretionary."

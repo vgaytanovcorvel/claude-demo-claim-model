@@ -27,7 +27,7 @@ def test_full_orchestration(
             add_tool(
                 "todo-003",
                 "Order materials for repair",
-                "contractor",
+                "adjuster",
                 "deadline-driven",
             )
         return delta

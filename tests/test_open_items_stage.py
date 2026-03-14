@@ -3,6 +3,7 @@ from unittest.mock import patch
 from models.claim_event import ClaimEvent
 from models.claim_state import ClaimState
 from models.claim_state_delta import ClaimStateDelta
+from models.owner import Owner
 from models.todo_item_category import TodoItemCategory
 from models.todo_item_status import TodoItemStatus
 from models.urgency_type import UrgencyType
@@ -14,16 +15,14 @@ def test_add_open_item_tool_mutates_delta():
     delta = ClaimStateDelta()
     add_tool = _make_add_open_item_tool(delta, TREATMENT_RULES)
 
-    result = add_tool(
-        "todo-new", "Get repair estimate", "contractor", "deadline-driven"
-    )
+    result = add_tool("todo-new", "Get repair estimate", "provider", "deadline-driven")
 
     assert "Added" in result
     assert len(delta.open_items.add) == 1
     item = delta.open_items.add[0]
     assert item.todo_item_id == "todo-new"
     assert item.description == "Get repair estimate"
-    assert item.owner == "contractor"
+    assert item.owner == Owner.PROVIDER
     assert item.urgency_type == UrgencyType.DEADLINE_DRIVEN
     assert item.status == TodoItemStatus.OPEN
     assert item.category == TodoItemCategory.TREATMENT

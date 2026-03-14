@@ -4,6 +4,7 @@ import pytest
 
 from models.claim_event import ClaimEvent
 from models.claim_state import ClaimState
+from models.owner import Owner
 from models.todo_item import TodoItem
 from models.todo_item_category import TodoItemCategory
 from models.todo_item_status import TodoItemStatus
@@ -26,7 +27,7 @@ def sample_todo_item(overrides: dict | None = None) -> TodoItem:
         "created_at": datetime(2026, 3, 10, 8, 0, 0, tzinfo=timezone.utc),
         "status": TodoItemStatus.OPEN,
         "description": "Schedule adjuster visit",
-        "owner": "adjuster-team",
+        "owner": Owner.ADJUSTER,
         "urgency_type": UrgencyType.MILESTONE_PROTECTING,
         "category": TodoItemCategory.TREATMENT,
     }
@@ -51,7 +52,7 @@ def sample_claim_state() -> ClaimState:
                 {
                     "todo_item_id": "todo-002",
                     "description": "Request contractor estimate",
-                    "owner": "claims-handler",
+                    "owner": Owner.ADJUSTER,
                     "urgency_type": UrgencyType.DEADLINE_DRIVEN,
                     "category": TodoItemCategory.FINANCIAL,
                 }
@@ -63,7 +64,7 @@ def sample_claim_state() -> ClaimState:
                     "todo_item_id": "todo-closed-001",
                     "status": TodoItemStatus.CLOSED,
                     "description": "Verify policy coverage",
-                    "owner": "underwriting",
+                    "owner": Owner.ADJUSTER,
                     "urgency_type": UrgencyType.DISCRETIONARY,
                     "category": TodoItemCategory.COMPLIANCE,
                     "terminal_at": datetime(2026, 3, 10, 14, 0, 0, tzinfo=timezone.utc),

@@ -1,5 +1,6 @@
 from models.todo_item_category import TodoItemCategory
 from rules.category_rules import CategoryRules
+from rules.owner_guidance import OWNER_GUIDANCE_PREAMBLE
 
 TREATMENT_RULES = CategoryRules(
     category=TodoItemCategory.TREATMENT,
@@ -33,6 +34,12 @@ TREATMENT_RULES = CategoryRules(
         "- Do NOT open treatment items for administrative or financial tasks — those "
         "belong in other categories.\n"
         "- Do NOT duplicate any existing open items.\n\n"
+        + OWNER_GUIDANCE_PREAMBLE
+        + "- provider: for items requiring medical action (scheduling, performing, "
+        "or reporting on treatments and tests).\n"
+        "- injured-worker: for items the claimant must carry out (attending appointments, "
+        "following prescribed care).\n"
+        "- adjuster: for items requiring claims oversight (authorizations, follow-ups).\n\n"
         "Based on the provided claim event, create new treatment todo items. "
         "Use add_open_item to create each new item. "
         "Valid urgency types are: milestone-protecting, deadline-driven, discretionary."

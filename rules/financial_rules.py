@@ -1,5 +1,6 @@
 from models.todo_item_category import TodoItemCategory
 from rules.category_rules import CategoryRules
+from rules.owner_guidance import OWNER_GUIDANCE_PREAMBLE
 
 FINANCIAL_RULES = CategoryRules(
     category=TodoItemCategory.FINANCIAL,
@@ -31,6 +32,13 @@ FINANCIAL_RULES = CategoryRules(
         "- Open a financial item when cost containment measures are recommended.\n"
         "- Do NOT open financial items for medical or employment tasks.\n"
         "- Do NOT duplicate any existing open items.\n\n"
+        + OWNER_GUIDANCE_PREAMBLE
+        + "- adjuster: for most financial items (processing payments, adjusting reserves, "
+        "approving expenses, negotiating settlements).\n"
+        "- employer: for items requiring employer financial action (wage verification, "
+        "premium adjustments).\n"
+        "- provider: for items requiring provider billing action (submitting invoices, "
+        "cost containment reviews).\n\n"
         "Based on the provided claim event, create new financial todo items. "
         "Use add_open_item to create each new item. "
         "Valid urgency types are: milestone-protecting, deadline-driven, discretionary."

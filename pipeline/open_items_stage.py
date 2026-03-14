@@ -6,6 +6,7 @@ from models.claim_event import ClaimEvent
 from models.claim_state import ClaimState
 from models.claim_state_delta import ClaimStateDelta
 from models.todo_item import TodoItem
+from models.owner import Owner
 from models.todo_item_status import TodoItemStatus
 from models.urgency_type import UrgencyType
 from pipeline.run_tool_loop import run_tool_loop
@@ -20,13 +21,13 @@ def _make_add_open_item_tool(
     def add_open_item(
         todo_item_id: str, description: str, owner: str, urgency_type: str
     ) -> str:
-        """Add a new open todo item. Provide a unique ID, description, owner, and urgency type (milestone-protecting, deadline-driven, or discretionary)."""
+        """Add a new open todo item. Provide a unique ID, description, owner (the party responsible for executing this item: adjuster, employer, provider, injured-worker, or other), and urgency type (milestone-protecting, deadline-driven, or discretionary)."""
         item = TodoItem(
             todo_item_id=todo_item_id,
             created_at=datetime.now(timezone.utc),
             status=TodoItemStatus.OPEN,
             description=description,
-            owner=owner,
+            owner=Owner(owner),
             urgency_type=UrgencyType(urgency_type),
             category=rules.category,
         )

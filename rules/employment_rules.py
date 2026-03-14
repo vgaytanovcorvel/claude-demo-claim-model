@@ -1,5 +1,6 @@
 from models.todo_item_category import TodoItemCategory
 from rules.category_rules import CategoryRules
+from rules.owner_guidance import OWNER_GUIDANCE_PREAMBLE
 
 EMPLOYMENT_RULES = CategoryRules(
     category=TodoItemCategory.EMPLOYMENT,
@@ -36,6 +37,15 @@ EMPLOYMENT_RULES = CategoryRules(
         "- Open an employment item when employer accommodation discussions are needed.\n"
         "- Do NOT open employment items for medical treatments or financial tasks.\n"
         "- Do NOT duplicate any existing open items.\n\n"
+        + OWNER_GUIDANCE_PREAMBLE
+        + "- employer: for items requiring workplace action (accommodations, modified duty, "
+        "return-to-work coordination).\n"
+        "- injured-worker: for items the claimant must carry out (attending evaluations, "
+        "reporting to work).\n"
+        "- adjuster: for items requiring claims oversight (coordinating vocational rehab, "
+        "monitoring return-to-work progress).\n"
+        "- provider: for items requiring medical input (functional capacity evaluations, "
+        "work restriction assessments).\n\n"
         "Based on the provided claim event, create new employment todo items. "
         "Use add_open_item to create each new item. "
         "Valid urgency types are: milestone-protecting, deadline-driven, discretionary."
