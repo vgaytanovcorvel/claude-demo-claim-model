@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claim State Delta Report</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #f0f2f5; color: #1a1a2e; padding: 24px;
+        line-height: 1.5;
+    }
+    h1 {
+        font-size: 1.6rem; margin-bottom: 24px; color: #1a1a2e;
+        border-bottom: 2px solid #3a86ff; padding-bottom: 8px; display: inline-block;
+    }
+    .event-card {
+        background: #fff; border-radius: 8px; margin-bottom: 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;
+    }
+    .event-header {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 16px; background: #1a1a2e; color: #fff;
+        cursor: pointer; user-select: none;
+    }
+    .event-header:hover { background: #2a2a4e; }
+    .event-id {
+        font-family: 'Consolas', 'Fira Code', monospace;
+        font-weight: 600; font-size: 0.95rem;
+        background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 4px;
+    }
+    .event-ts { color: #a0a0c0; font-size: 0.85rem; }
+    .toggle { margin-left: auto; font-size: 0.8rem; transition: transform 0.2s; }
+    .toggle.collapsed { transform: rotate(-90deg); }
+    .event-content {
+        padding: 12px 16px; background: #f8f9fb; border-bottom: 1px solid #e4e7ec;
+        font-size: 0.93rem; color: #444;
+    }
+    .event-body { padding: 0; }
+    .event-body.hidden { display: none; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; }
+    .panel { padding: 16px; overflow-x: auto; }
+    .delta-panel { background: #fefce8; border-right: 1px solid #e4e7ec; }
+    .state-panel { background: #f0fdf4; }
+    .panel h3 {
+        font-size: 0.95rem; margin-bottom: 12px; text-transform: uppercase;
+        letter-spacing: 0.05em; color: #666;
+    }
+    .panel h4 { font-size: 0.85rem; margin: 12px 0 6px; color: #333; }
+    .panel h4:first-child { margin-top: 0; }
+    table {
+        width: 100%; border-collapse: collapse; font-size: 0.82rem;
+        margin-bottom: 8px;
+    }
+    th {
+        text-align: left; padding: 6px 8px; background: rgba(0,0,0,0.05);
+        font-weight: 600; font-size: 0.78rem; text-transform: uppercase;
+        letter-spacing: 0.03em; color: #555; border-bottom: 2px solid #ddd;
+    }
+    td { padding: 6px 8px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .mono { font-family: 'Consolas', 'Fira Code', monospace; font-size: 0.82rem; }
+    .ts { color: #888; font-size: 0.82rem; }
+    .empty { color: #999; font-style: italic; font-size: 0.85rem; }
+    ul { padding-left: 20px; font-size: 0.88rem; }
+    li { margin-bottom: 4px; }
+    .delete-list li { color: #b91c1c; }
+
+    .badge {
+        display: inline-block; padding: 1px 7px; border-radius: 3px;
+        font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    .badge-treatment   { background: #dbeafe; color: #1e40af; }
+    .badge-employment  { background: #fef3c7; color: #92400e; }
+    .badge-financial   { background: #d1fae5; color: #065f46; }
+    .badge-compliance  { background: #ede9fe; color: #5b21b6; }
+    .badge-litigation  { background: #fee2e2; color: #991b1b; }
+    .badge-open        { background: #dbeafe; color: #1e40af; }
+    .badge-closed      { background: #d1fae5; color: #065f46; }
+    .badge-cancelled   { background: #fef3c7; color: #92400e; }
+
+    .filter-bar {
+        display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+        margin-bottom: 16px; padding: 10px 16px;
+        background: #fff; border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .filter-bar .filter-title {
+        font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;
+        color: #666; font-weight: 600; margin-right: 4px;
+    }
+    .filter-btn {
+        border: 2px solid transparent; border-radius: 6px; padding: 4px 10px;
+        cursor: pointer; background: #e5e7eb; font-size: 0.82rem;
+        font-weight: 600; transition: opacity 0.15s, border-color 0.15s;
+    }
+    .filter-btn.active { border-color: #3a86ff; opacity: 1; }
+    .filter-btn:not(.active) { opacity: 0.4; }
+    .filter-btn:hover { opacity: 0.85; }
+
+    @media (max-width: 900px) {
+        .split { grid-template-columns: 1fr; }
+        .delta-panel { border-right: none; border-bottom: 1px solid #e4e7ec; }
+    }
+</style>
+</head>
+<body>
+<h1>Claim State Delta Report</h1>
+<div class="filter-bar">
+    <span class="filter-title">Categories:</span>
+    <button class="filter-btn active" data-cat="all" onclick="filterCat('all')">All</button>
+    <button class="filter-btn active" data-cat="treatment" onclick="filterCat('treatment')">
+        <span class="badge badge-treatment">Treatment</span></button>
+    <button class="filter-btn active" data-cat="employment" onclick="filterCat('employment')">
+        <span class="badge badge-employment">Employment</span></button>
+    <button class="filter-btn active" data-cat="financial" onclick="filterCat('financial')">
+        <span class="badge badge-financial">Financial</span></button>
+    <button class="filter-btn active" data-cat="compliance" onclick="filterCat('compliance')">
+        <span class="badge badge-compliance">Compliance</span></button>
+    <button class="filter-btn active" data-cat="litigation" onclick="filterCat('litigation')">
+        <span class="badge badge-litigation">Litigation</span></button>
+</div>
+
+            <div class="event-card">
+                <div class="event-header" onclick="toggleSection('evt-0')">
+                    <span class="event-id">evt-001</span>
+                    <span class="event-ts">2026-03-10 09:00 UTC</span>
+                    <span class="toggle" id="toggle-evt-0">&#9660;</span>
+                </div>
+                <div class="event-content">New workers comp claim filed by John Smith. Injured left shoulder while lifting boxes at warehouse. Immediate medical attention requested.</div>
+                <div class="event-body" id="evt-0">
+                    <div class="split">
+                        <div class="panel delta-panel">
+                            <h3>Delta</h3>
+                            <h4>Events Added</h4><ul><li><span class='mono'>evt-001</span> — New workers comp claim filed by John Smith. Injured left shoulder while lifting boxes at warehouse. Immediate medical at</li></ul><h4>Open Items Added</h4><table><thead><tr><th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th><th>Owner</th><th>Status</th><th>Urgency</th><th>Created</th><th>Terminal</th></tr></thead><tbody><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-001</td><td><span class='badge badge-treatment'>treatment</span></td><td>acute-care</td><td>Advise acute care and await initial diagnosis</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-financial' data-category='financial'><td class='mono'>financial-1</td><td><span class='badge badge-financial'>financial</span></td><td>wage-verification</td><td>Verify wages and calculate Average Weekly Wage (AWW) for John Smith.</td><td>employer</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-financial' data-category='financial'><td class='mono'>financial-2</td><td><span class='badge badge-financial'>financial</span></td><td>reserve-review</td><td>Initial reserve review for new claim involving left shoulder injury.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>discretionary</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-1</td><td><span class='badge badge-compliance'>compliance</span></td><td>regulatory-filing</td><td>File First Report of Injury with the state board.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-2</td><td><span class='badge badge-compliance'>compliance</span></td><td>benefit-notice</td><td>Send initial benefit rights notice to the claimant.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-3</td><td><span class='badge badge-compliance'>compliance</span></td><td>acceptance-denial-letter</td><td>Issue acceptance or denial letter within the statutory window.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-4</td><td><span class='badge badge-compliance'>compliance</span></td><td>osha-reporting</td><td>Complete OSHA log and file reports for the workplace injury.</td><td>employer</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr></tbody></table>
+                        </div>
+                        <div class="panel state-panel">
+                            <h3>State After</h3>
+                            <h4>Events</h4><ul><li><span class='mono'>evt-001</span> <span class='ts'>2026-03-10 09:00 UTC</span> — New workers comp claim filed by John Smith. Injured left shoulder while lifting boxes at warehouse. Immediate medical at</li></ul><h4>Open Items (7)</h4><table><thead><tr><th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th><th>Owner</th><th>Status</th><th>Urgency</th><th>Created</th><th>Terminal</th></tr></thead><tbody><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-001</td><td><span class='badge badge-treatment'>treatment</span></td><td>acute-care</td><td>Advise acute care and await initial diagnosis</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-financial' data-category='financial'><td class='mono'>financial-1</td><td><span class='badge badge-financial'>financial</span></td><td>wage-verification</td><td>Verify wages and calculate Average Weekly Wage (AWW) for John Smith.</td><td>employer</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-financial' data-category='financial'><td class='mono'>financial-2</td><td><span class='badge badge-financial'>financial</span></td><td>reserve-review</td><td>Initial reserve review for new claim involving left shoulder injury.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>discretionary</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-1</td><td><span class='badge badge-compliance'>compliance</span></td><td>regulatory-filing</td><td>File First Report of Injury with the state board.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-2</td><td><span class='badge badge-compliance'>compliance</span></td><td>benefit-notice</td><td>Send initial benefit rights notice to the claimant.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-3</td><td><span class='badge badge-compliance'>compliance</span></td><td>acceptance-denial-letter</td><td>Issue acceptance or denial letter within the statutory window.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-4</td><td><span class='badge badge-compliance'>compliance</span></td><td>osha-reporting</td><td>Complete OSHA log and file reports for the workplace injury.</td><td>employer</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr></tbody></table><h4>Closed Items (0)</h4><p class='empty'>Closed items: none</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="event-card">
+                <div class="event-header" onclick="toggleSection('evt-1')">
+                    <span class="event-id">evt-002</span>
+                    <span class="event-ts">2026-03-11 14:30 UTC</span>
+                    <span class="toggle" id="toggle-evt-1">&#9660;</span>
+                </div>
+                <div class="event-content">Medical report received from Dr. Patel. Diagnosis: rotator cuff tear. Recommended treatment: physical therapy 3x/week for 6 weeks, MRI scheduled.</div>
+                <div class="event-body" id="evt-1">
+                    <div class="split">
+                        <div class="panel delta-panel">
+                            <h3>Delta</h3>
+                            <h4>Events Added</h4><ul><li><span class='mono'>evt-002</span> — Medical report received from Dr. Patel. Diagnosis: rotator cuff tear. Recommended treatment: physical therapy 3x/week fo</li></ul><h4>Open Items Added</h4><table><thead><tr><th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th><th>Owner</th><th>Status</th><th>Urgency</th><th>Created</th><th>Terminal</th></tr></thead><tbody><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-002</td><td><span class='badge badge-treatment'>treatment</span></td><td>treatment-plan</td><td>Verify treatment plan for rotator cuff tear and schedule follow-up appointments.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'></td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-003</td><td><span class='badge badge-treatment'>treatment</span></td><td>authorization</td><td>Authorize and confirm scheduling for physical therapy 3x/week for 6 weeks.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'></td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-004</td><td><span class='badge badge-treatment'>treatment</span></td><td>authorization</td><td>Authorize and confirm scheduled MRI.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'></td></tr></tbody></table><h4>Open Items Removed</h4><ul class='delete-list'><li><span class='mono'>treatment-001</span></li></ul><h4>Closed/Cancelled Items Added</h4><table><thead><tr><th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th><th>Owner</th><th>Status</th><th>Urgency</th><th>Created</th><th>Terminal</th></tr></thead><tbody><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-001</td><td><span class='badge badge-treatment'>treatment</span></td><td>acute-care</td><td>Advise acute care and await initial diagnosis</td><td>adjuster</td><td><span class='badge badge-closed'>closed</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'>2026-03-14 11:39 UTC</td></tr></tbody></table>
+                        </div>
+                        <div class="panel state-panel">
+                            <h3>State After</h3>
+                            <h4>Events</h4><ul><li><span class='mono'>evt-001</span> <span class='ts'>2026-03-10 09:00 UTC</span> — New workers comp claim filed by John Smith. Injured left shoulder while lifting boxes at warehouse. Immediate medical at</li><li><span class='mono'>evt-002</span> <span class='ts'>2026-03-11 14:30 UTC</span> — Medical report received from Dr. Patel. Diagnosis: rotator cuff tear. Recommended treatment: physical therapy 3x/week fo</li></ul><h4>Open Items (9)</h4><table><thead><tr><th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th><th>Owner</th><th>Status</th><th>Urgency</th><th>Created</th><th>Terminal</th></tr></thead><tbody><tr class='cat-financial' data-category='financial'><td class='mono'>financial-1</td><td><span class='badge badge-financial'>financial</span></td><td>wage-verification</td><td>Verify wages and calculate Average Weekly Wage (AWW) for John Smith.</td><td>employer</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-financial' data-category='financial'><td class='mono'>financial-2</td><td><span class='badge badge-financial'>financial</span></td><td>reserve-review</td><td>Initial reserve review for new claim involving left shoulder injury.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>discretionary</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-1</td><td><span class='badge badge-compliance'>compliance</span></td><td>regulatory-filing</td><td>File First Report of Injury with the state board.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-2</td><td><span class='badge badge-compliance'>compliance</span></td><td>benefit-notice</td><td>Send initial benefit rights notice to the claimant.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-3</td><td><span class='badge badge-compliance'>compliance</span></td><td>acceptance-denial-letter</td><td>Issue acceptance or denial letter within the statutory window.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-4</td><td><span class='badge badge-compliance'>compliance</span></td><td>osha-reporting</td><td>Complete OSHA log and file reports for the workplace injury.</td><td>employer</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-002</td><td><span class='badge badge-treatment'>treatment</span></td><td>treatment-plan</td><td>Verify treatment plan for rotator cuff tear and schedule follow-up appointments.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'></td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-003</td><td><span class='badge badge-treatment'>treatment</span></td><td>authorization</td><td>Authorize and confirm scheduling for physical therapy 3x/week for 6 weeks.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'></td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-004</td><td><span class='badge badge-treatment'>treatment</span></td><td>authorization</td><td>Authorize and confirm scheduled MRI.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'></td></tr></tbody></table><h4>Closed Items (1)</h4><table><thead><tr><th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th><th>Owner</th><th>Status</th><th>Urgency</th><th>Created</th><th>Terminal</th></tr></thead><tbody><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-001</td><td><span class='badge badge-treatment'>treatment</span></td><td>acute-care</td><td>Advise acute care and await initial diagnosis</td><td>adjuster</td><td><span class='badge badge-closed'>closed</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'>2026-03-14 11:39 UTC</td></tr></tbody></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="event-card">
+                <div class="event-header" onclick="toggleSection('evt-2')">
+                    <span class="event-id">evt-003</span>
+                    <span class="event-ts">2026-03-12 10:15 UTC</span>
+                    <span class="toggle" id="toggle-evt-2">&#9660;</span>
+                </div>
+                <div class="event-content">MRI results confirmed partial rotator cuff tear. Surgery not required at this time. Physical therapy plan approved.</div>
+                <div class="event-body" id="evt-2">
+                    <div class="split">
+                        <div class="panel delta-panel">
+                            <h3>Delta</h3>
+                            <h4>Events Added</h4><ul><li><span class='mono'>evt-003</span> — MRI results confirmed partial rotator cuff tear. Surgery not required at this time. Physical therapy plan approved.</li></ul><h4>Open Items Added</h4><table><thead><tr><th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th><th>Owner</th><th>Status</th><th>Urgency</th><th>Created</th><th>Terminal</th></tr></thead><tbody><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-005</td><td><span class='badge badge-treatment'>treatment</span></td><td>follow-up-care</td><td>Schedule physical therapy sessions and monitor progress.</td><td>provider</td><td><span class='badge badge-open'>open</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'></td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-006</td><td><span class='badge badge-treatment'>treatment</span></td><td>follow-up-care</td><td>Attend physical therapy sessions as prescribed.</td><td>injured-worker</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'></td></tr></tbody></table><h4>Open Items Removed</h4><ul class='delete-list'><li><span class='mono'>treatment-002</span></li><li><span class='mono'>treatment-003</span></li><li><span class='mono'>treatment-004</span></li></ul><h4>Closed/Cancelled Items Added</h4><table><thead><tr><th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th><th>Owner</th><th>Status</th><th>Urgency</th><th>Created</th><th>Terminal</th></tr></thead><tbody><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-002</td><td><span class='badge badge-treatment'>treatment</span></td><td>treatment-plan</td><td>Verify treatment plan for rotator cuff tear and schedule follow-up appointments.</td><td>adjuster</td><td><span class='badge badge-closed'>closed</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'>2026-03-14 11:40 UTC</td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-003</td><td><span class='badge badge-treatment'>treatment</span></td><td>authorization</td><td>Authorize and confirm scheduling for physical therapy 3x/week for 6 weeks.</td><td>adjuster</td><td><span class='badge badge-closed'>closed</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'>2026-03-14 11:40 UTC</td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-004</td><td><span class='badge badge-treatment'>treatment</span></td><td>authorization</td><td>Authorize and confirm scheduled MRI.</td><td>adjuster</td><td><span class='badge badge-closed'>closed</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'>2026-03-14 11:40 UTC</td></tr></tbody></table>
+                        </div>
+                        <div class="panel state-panel">
+                            <h3>State After</h3>
+                            <h4>Events</h4><ul><li><span class='mono'>evt-001</span> <span class='ts'>2026-03-10 09:00 UTC</span> — New workers comp claim filed by John Smith. Injured left shoulder while lifting boxes at warehouse. Immediate medical at</li><li><span class='mono'>evt-002</span> <span class='ts'>2026-03-11 14:30 UTC</span> — Medical report received from Dr. Patel. Diagnosis: rotator cuff tear. Recommended treatment: physical therapy 3x/week fo</li><li><span class='mono'>evt-003</span> <span class='ts'>2026-03-12 10:15 UTC</span> — MRI results confirmed partial rotator cuff tear. Surgery not required at this time. Physical therapy plan approved.</li></ul><h4>Open Items (8)</h4><table><thead><tr><th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th><th>Owner</th><th>Status</th><th>Urgency</th><th>Created</th><th>Terminal</th></tr></thead><tbody><tr class='cat-financial' data-category='financial'><td class='mono'>financial-1</td><td><span class='badge badge-financial'>financial</span></td><td>wage-verification</td><td>Verify wages and calculate Average Weekly Wage (AWW) for John Smith.</td><td>employer</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-financial' data-category='financial'><td class='mono'>financial-2</td><td><span class='badge badge-financial'>financial</span></td><td>reserve-review</td><td>Initial reserve review for new claim involving left shoulder injury.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>discretionary</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-1</td><td><span class='badge badge-compliance'>compliance</span></td><td>regulatory-filing</td><td>File First Report of Injury with the state board.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-2</td><td><span class='badge badge-compliance'>compliance</span></td><td>benefit-notice</td><td>Send initial benefit rights notice to the claimant.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-3</td><td><span class='badge badge-compliance'>compliance</span></td><td>acceptance-denial-letter</td><td>Issue acceptance or denial letter within the statutory window.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-4</td><td><span class='badge badge-compliance'>compliance</span></td><td>osha-reporting</td><td>Complete OSHA log and file reports for the workplace injury.</td><td>employer</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-005</td><td><span class='badge badge-treatment'>treatment</span></td><td>follow-up-care</td><td>Schedule physical therapy sessions and monitor progress.</td><td>provider</td><td><span class='badge badge-open'>open</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'></td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-006</td><td><span class='badge badge-treatment'>treatment</span></td><td>follow-up-care</td><td>Attend physical therapy sessions as prescribed.</td><td>injured-worker</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'></td></tr></tbody></table><h4>Closed Items (4)</h4><table><thead><tr><th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th><th>Owner</th><th>Status</th><th>Urgency</th><th>Created</th><th>Terminal</th></tr></thead><tbody><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-001</td><td><span class='badge badge-treatment'>treatment</span></td><td>acute-care</td><td>Advise acute care and await initial diagnosis</td><td>adjuster</td><td><span class='badge badge-closed'>closed</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'>2026-03-14 11:39 UTC</td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-002</td><td><span class='badge badge-treatment'>treatment</span></td><td>treatment-plan</td><td>Verify treatment plan for rotator cuff tear and schedule follow-up appointments.</td><td>adjuster</td><td><span class='badge badge-closed'>closed</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'>2026-03-14 11:40 UTC</td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-003</td><td><span class='badge badge-treatment'>treatment</span></td><td>authorization</td><td>Authorize and confirm scheduling for physical therapy 3x/week for 6 weeks.</td><td>adjuster</td><td><span class='badge badge-closed'>closed</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'>2026-03-14 11:40 UTC</td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-004</td><td><span class='badge badge-treatment'>treatment</span></td><td>authorization</td><td>Authorize and confirm scheduled MRI.</td><td>adjuster</td><td><span class='badge badge-closed'>closed</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'>2026-03-14 11:40 UTC</td></tr></tbody></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="event-card">
+                <div class="event-header" onclick="toggleSection('evt-3')">
+                    <span class="event-id">evt-004</span>
+                    <span class="event-ts">2026-03-13 16:00 UTC</span>
+                    <span class="toggle" id="toggle-evt-3">&#9660;</span>
+                </div>
+                <div class="event-content">Claimant completed 6 weeks of physical therapy. Dr. Patel reports full range of motion restored. Claimant cleared to return to work with no restrictions.</div>
+                <div class="event-body" id="evt-3">
+                    <div class="split">
+                        <div class="panel delta-panel">
+                            <h3>Delta</h3>
+                            <h4>Events Added</h4><ul><li><span class='mono'>evt-004</span> — Claimant completed 6 weeks of physical therapy. Dr. Patel reports full range of motion restored. Claimant cleared to ret</li></ul><h4>Open Items Added</h4><table><thead><tr><th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th><th>Owner</th><th>Status</th><th>Urgency</th><th>Created</th><th>Terminal</th></tr></thead><tbody><tr class='cat-employment' data-category='employment'><td class='mono'>emp-004-1</td><td><span class='badge badge-employment'>employment</span></td><td>return-to-work-confirmation</td><td>Confirm return-to-work date and verify resumed duties.</td><td>employer</td><td><span class='badge badge-open'>open</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'></td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-007</td><td><span class='badge badge-treatment'>treatment</span></td><td>mmi-evaluation</td><td>Obtain final medical report from Dr. Patel and coordinate impairment rating.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-004-compliance-1</td><td><span class='badge badge-compliance'>compliance</span></td><td>regulatory-filing</td><td>File notice of return to work with the state board to suspend temporary benefits.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:41 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-004-compliance-2</td><td><span class='badge badge-compliance'>compliance</span></td><td>benefit-notice</td><td>Send Notice of Cessation/Suspension of Benefits to the claimant.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:41 UTC</td><td class='mono'></td></tr></tbody></table><h4>Open Items Removed</h4><ul class='delete-list'><li><span class='mono'>treatment-005</span></li><li><span class='mono'>treatment-006</span></li></ul><h4>Closed/Cancelled Items Added</h4><table><thead><tr><th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th><th>Owner</th><th>Status</th><th>Urgency</th><th>Created</th><th>Terminal</th></tr></thead><tbody><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-005</td><td><span class='badge badge-treatment'>treatment</span></td><td>follow-up-care</td><td>Schedule physical therapy sessions and monitor progress.</td><td>provider</td><td><span class='badge badge-closed'>closed</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'>2026-03-14 11:40 UTC</td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-006</td><td><span class='badge badge-treatment'>treatment</span></td><td>follow-up-care</td><td>Attend physical therapy sessions as prescribed.</td><td>injured-worker</td><td><span class='badge badge-closed'>closed</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'>2026-03-14 11:40 UTC</td></tr></tbody></table>
+                        </div>
+                        <div class="panel state-panel">
+                            <h3>State After</h3>
+                            <h4>Events</h4><ul><li><span class='mono'>evt-001</span> <span class='ts'>2026-03-10 09:00 UTC</span> — New workers comp claim filed by John Smith. Injured left shoulder while lifting boxes at warehouse. Immediate medical at</li><li><span class='mono'>evt-002</span> <span class='ts'>2026-03-11 14:30 UTC</span> — Medical report received from Dr. Patel. Diagnosis: rotator cuff tear. Recommended treatment: physical therapy 3x/week fo</li><li><span class='mono'>evt-003</span> <span class='ts'>2026-03-12 10:15 UTC</span> — MRI results confirmed partial rotator cuff tear. Surgery not required at this time. Physical therapy plan approved.</li><li><span class='mono'>evt-004</span> <span class='ts'>2026-03-13 16:00 UTC</span> — Claimant completed 6 weeks of physical therapy. Dr. Patel reports full range of motion restored. Claimant cleared to ret</li></ul><h4>Open Items (10)</h4><table><thead><tr><th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th><th>Owner</th><th>Status</th><th>Urgency</th><th>Created</th><th>Terminal</th></tr></thead><tbody><tr class='cat-financial' data-category='financial'><td class='mono'>financial-1</td><td><span class='badge badge-financial'>financial</span></td><td>wage-verification</td><td>Verify wages and calculate Average Weekly Wage (AWW) for John Smith.</td><td>employer</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-financial' data-category='financial'><td class='mono'>financial-2</td><td><span class='badge badge-financial'>financial</span></td><td>reserve-review</td><td>Initial reserve review for new claim involving left shoulder injury.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>discretionary</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-1</td><td><span class='badge badge-compliance'>compliance</span></td><td>regulatory-filing</td><td>File First Report of Injury with the state board.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-2</td><td><span class='badge badge-compliance'>compliance</span></td><td>benefit-notice</td><td>Send initial benefit rights notice to the claimant.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-3</td><td><span class='badge badge-compliance'>compliance</span></td><td>acceptance-denial-letter</td><td>Issue acceptance or denial letter within the statutory window.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-001-compliance-4</td><td><span class='badge badge-compliance'>compliance</span></td><td>osha-reporting</td><td>Complete OSHA log and file reports for the workplace injury.</td><td>employer</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'></td></tr><tr class='cat-employment' data-category='employment'><td class='mono'>emp-004-1</td><td><span class='badge badge-employment'>employment</span></td><td>return-to-work-confirmation</td><td>Confirm return-to-work date and verify resumed duties.</td><td>employer</td><td><span class='badge badge-open'>open</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'></td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-007</td><td><span class='badge badge-treatment'>treatment</span></td><td>mmi-evaluation</td><td>Obtain final medical report from Dr. Patel and coordinate impairment rating.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-004-compliance-1</td><td><span class='badge badge-compliance'>compliance</span></td><td>regulatory-filing</td><td>File notice of return to work with the state board to suspend temporary benefits.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:41 UTC</td><td class='mono'></td></tr><tr class='cat-compliance' data-category='compliance'><td class='mono'>evt-004-compliance-2</td><td><span class='badge badge-compliance'>compliance</span></td><td>benefit-notice</td><td>Send Notice of Cessation/Suspension of Benefits to the claimant.</td><td>adjuster</td><td><span class='badge badge-open'>open</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:41 UTC</td><td class='mono'></td></tr></tbody></table><h4>Closed Items (6)</h4><table><thead><tr><th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th><th>Owner</th><th>Status</th><th>Urgency</th><th>Created</th><th>Terminal</th></tr></thead><tbody><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-001</td><td><span class='badge badge-treatment'>treatment</span></td><td>acute-care</td><td>Advise acute care and await initial diagnosis</td><td>adjuster</td><td><span class='badge badge-closed'>closed</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:39 UTC</td><td class='mono'>2026-03-14 11:39 UTC</td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-002</td><td><span class='badge badge-treatment'>treatment</span></td><td>treatment-plan</td><td>Verify treatment plan for rotator cuff tear and schedule follow-up appointments.</td><td>adjuster</td><td><span class='badge badge-closed'>closed</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'>2026-03-14 11:40 UTC</td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-003</td><td><span class='badge badge-treatment'>treatment</span></td><td>authorization</td><td>Authorize and confirm scheduling for physical therapy 3x/week for 6 weeks.</td><td>adjuster</td><td><span class='badge badge-closed'>closed</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'>2026-03-14 11:40 UTC</td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-004</td><td><span class='badge badge-treatment'>treatment</span></td><td>authorization</td><td>Authorize and confirm scheduled MRI.</td><td>adjuster</td><td><span class='badge badge-closed'>closed</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'>2026-03-14 11:40 UTC</td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-005</td><td><span class='badge badge-treatment'>treatment</span></td><td>follow-up-care</td><td>Schedule physical therapy sessions and monitor progress.</td><td>provider</td><td><span class='badge badge-closed'>closed</span></td><td>milestone-protecting</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'>2026-03-14 11:40 UTC</td></tr><tr class='cat-treatment' data-category='treatment'><td class='mono'>treatment-006</td><td><span class='badge badge-treatment'>treatment</span></td><td>follow-up-care</td><td>Attend physical therapy sessions as prescribed.</td><td>injured-worker</td><td><span class='badge badge-closed'>closed</span></td><td>deadline-driven</td><td class='mono'>2026-03-14 11:40 UTC</td><td class='mono'>2026-03-14 11:40 UTC</td></tr></tbody></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+<script>
+function toggleSection(id) {
+    const el = document.getElementById(id);
+    const toggle = document.getElementById('toggle-' + id);
+    el.classList.toggle('hidden');
+    toggle.classList.toggle('collapsed');
+}
+function filterCat(cat) {
+    const btns = document.querySelectorAll('.filter-btn');
+    const allBtn = document.querySelector('.filter-btn[data-cat="all"]');
+    const catBtns = Array.from(document.querySelectorAll('.filter-btn:not([data-cat="all"])'));
+
+    if (cat === 'all') {
+        // If all are already active, do nothing; otherwise activate all
+        catBtns.forEach(b => b.classList.add('active'));
+        allBtn.classList.add('active');
+    } else {
+        const clicked = document.querySelector(`.filter-btn[data-cat="${cat}"]`);
+        const activeNonAll = catBtns.filter(b => b.classList.contains('active'));
+
+        // If everything is active (or "All" is on), solo this category
+        // If only this one is active, go back to all
+        // Otherwise toggle this category
+        if (allBtn.classList.contains('active') || activeNonAll.length === catBtns.length) {
+            catBtns.forEach(b => b.classList.remove('active'));
+            allBtn.classList.remove('active');
+            clicked.classList.add('active');
+        } else if (activeNonAll.length === 1 && clicked.classList.contains('active')) {
+            catBtns.forEach(b => b.classList.add('active'));
+            allBtn.classList.add('active');
+        } else {
+            clicked.classList.toggle('active');
+            const nowActive = catBtns.filter(b => b.classList.contains('active'));
+            if (nowActive.length === catBtns.length) {
+                allBtn.classList.add('active');
+            } else {
+                allBtn.classList.remove('active');
+            }
+        }
+    }
+
+    const active = new Set(
+        catBtns.filter(b => b.classList.contains('active')).map(b => b.dataset.cat)
+    );
+    document.querySelectorAll('tr[data-category]').forEach(row => {
+        row.style.display = active.has(row.dataset.category) ? '' : 'none';
+    });
+}
+</script>
+</body>
+</html>
