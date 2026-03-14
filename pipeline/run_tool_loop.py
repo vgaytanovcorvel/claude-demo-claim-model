@@ -13,7 +13,7 @@ def run_tool_loop(
     delta: ClaimStateDelta,
 ) -> ClaimStateDelta:
     """Run a Gemini generate_content call with automatic function calling."""
-    response = client.models.generate_content(
+    client.models.generate_content(
         model=MODEL,
         contents=user_message,
         config=types.GenerateContentConfig(

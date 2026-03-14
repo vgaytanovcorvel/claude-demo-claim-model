@@ -19,14 +19,31 @@ cancel_rules:
   - when: a superseding treatment plan replaces it
 
 open_rules:
+  preamble: >-
+    Only open items when the event contains a concrete treatment trigger.
+    Each item must describe a specific, actionable task — not a vague category.
   triggers:
-    - when: >-
-        the event mentions a new medical procedure,
-        therapy, or diagnostic test that needs to be scheduled or completed
-    - when: a physician prescribes a new course of treatment
-    - when: follow-up care is recommended after a procedure
+    - when: First notice of loss (FNOL) received with reported injury
+      action: >-
+        open item to advise acute care and await initial diagnosis
+    - when: Diagnosis established or changed by treating physician
+      action: >-
+        open item to verify treatment plan and schedule follow-up appointments
+    - when: New treatment prescribed (medication, therapy, procedure)
+      action: >-
+        open item for authorization review and confirm scheduling
+    - when: Surgery recommended by treating physician
+      action: >-
+        open items for pre-surgical authorization, surgical scheduling,
+        and post-operative rehabilitation plan
+    - when: Follow-up care recommended after a procedure
+      action: >-
+        open item to schedule specific follow-up appointments and track completion
+    - when: Maximum medical improvement (MMI) reached
+      action: >-
+        open item to obtain final medical report and coordinate impairment rating
   exclusions:
-    - "administrative or financial tasks \u2014 those belong in other categories."
+    - "administrative or financial tasks — those belong in other categories."
 
 owner_guidance:
   - owner: provider

@@ -24,13 +24,28 @@ cancel_rules:
       original return-to-work plan
 
 open_rules:
+  preamble: >-
+    Only open items when the event contains a concrete employment trigger.
+    Each item must describe a specific, actionable task — not a vague category.
   triggers:
-    - when: >-
-        the event mentions return-to-work planning,
-        work restrictions, or modified duty needs
-    - when: a functional capacity evaluation is ordered
-    - when: vocational rehabilitation is recommended
-    - when: employer accommodation discussions are needed
+    - when: Return-to-work planning initiated or work restrictions issued
+      action: >-
+        open item to coordinate modified duty placement with employer
+    - when: Functional capacity evaluation (FCE) ordered
+      action: >-
+        open item to schedule FCE, notify claimant, and track completion
+    - when: Vocational rehabilitation recommended
+      action: >-
+        open item to refer to vocational counselor and establish rehabilitation plan
+    - when: Employer accommodations needed for returning worker
+      action: >-
+        open item to initiate interactive process with employer
+    - when: Claimant cleared for full duty by treating physician
+      action: >-
+        open item to confirm return-to-work date and verify resumed duties
+    - when: Modified duty placement identified by employer
+      action: >-
+        open item to document modified duty offer and obtain claimant acknowledgment
   exclusions:
     - "medical treatments or financial tasks."
 

@@ -86,7 +86,6 @@ class PromptRenderer:
         has_subsections = (
             any(t.mandatory for t in open_rules.triggers)
             or open_rules.duplication_rules
-            or any(t.action for t in open_rules.triggers)
         )
 
         parts: list[str] = []
@@ -105,14 +104,7 @@ class PromptRenderer:
 
         # Separate triggers by type
         mandatory_triggers = [t for t in open_rules.triggers if t.mandatory]
-        action_triggers = [
-            t for t in open_rules.triggers if t.action and not t.mandatory
-        ]
-        simple_triggers = [
-            t
-            for t in open_rules.triggers
-            if not t.mandatory and not t.action
-        ]
+        action_triggers = [t for t in open_rules.triggers if not t.mandatory]
 
         # Mandatory triggers subsection
         if mandatory_triggers:
@@ -123,7 +115,7 @@ class PromptRenderer:
                 "non-discretionary:\n"
             )
             for trigger in mandatory_triggers:
-                parts.append(f"- {trigger.when}.\n")
+                parts.append(f"- {trigger.when} \u2192 {trigger.action}.\n")
             # Description format from duplication rules
             if open_rules.duplication_rules:
                 for name, dup_set in open_rules.duplication_rules.items():
@@ -144,25 +136,11 @@ class PromptRenderer:
                     parts.append(f"- {rule}\n")
                 parts.append("\n")
 
-        # Action triggers (litigation-style "trigger → action")
+        # Action triggers ("trigger → action")
         if action_triggers:
             parts.append("Valid triggers and the items they produce:\n")
             for trigger in action_triggers:
                 parts.append(f"- {trigger.when} \u2192 {trigger.action}.\n")
-            parts.append("\n")
-
-        # Simple triggers
-        if simple_triggers and not has_subsections:
-            for trigger in simple_triggers:
-                parts.append(
-                    f"- Open a {spec.category.value} item when {trigger.when}.\n"
-                )
-        elif simple_triggers:
-            # Render under a subsection header for complex categories
-            other_header = f"OTHER {category_upper} TRIGGERS:\n"
-            parts.append(other_header)
-            for trigger in simple_triggers:
-                parts.append(f"- {trigger.when}.\n")
             parts.append("\n")
 
         # Exclusions
@@ -175,9 +153,7 @@ class PromptRenderer:
                 parts.append(
                     f"- Do NOT open {spec.category.value} items for {exclusion}\n"
                 )
-            parts.append(
-                "- Do NOT duplicate any existing open items.\n"
-            )
+            parts.append("- Do NOT duplicate any existing open items.\n")
 
         parts.append("\n")
 

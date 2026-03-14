@@ -24,13 +24,28 @@ cancel_rules:
       time-consuming — regulatory obligations must be met
 
 open_rules:
+  preamble: >-
+    Only open items when the event contains a concrete compliance trigger.
+    Each item must describe a specific, actionable task — not a vague category.
   triggers:
-    - when: >-
-        the event triggers a regulatory filing
-        deadline or reporting requirement
-    - when: a jurisdictional notice must be sent
-    - when: an audit or review is mandated
-    - when: statutory benefit notices are due to the claimant
+    - when: Regulatory filing deadline triggered by claim event
+      action: >-
+        open item to prepare and submit the required filing
+    - when: Jurisdictional notice required for claimant or employer
+      action: >-
+        open item to draft, review, and mail notice with proof of service
+    - when: Audit or review mandated by regulatory body
+      action: >-
+        open item to compile documentation and schedule review
+    - when: Statutory benefit notices due to the claimant
+      action: >-
+        open item to generate and send notices within statutory timeframe
+    - when: OSHA reporting triggered by workplace injury
+      action: >-
+        open item for employer to complete OSHA log and file required reports
+    - when: Acceptance or denial letter deadline approaching
+      action: >-
+        open item to issue acceptance or denial letter within statutory window
   exclusions:
     - "treatment, employment, or financial tasks."
 

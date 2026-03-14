@@ -62,6 +62,14 @@ class TestYamlSchemaValidation:
         for og in spec.owner_guidance:
             assert og.owner in valid_owners
 
+    def test_all_triggers_have_action(self, yaml_path: Path):
+        raw = yaml.safe_load(yaml_path.read_text(encoding="utf-8"))
+        spec = CategoryRuleSpec(**raw)
+        for trigger in spec.open_rules.triggers:
+            assert trigger.action, (
+                f"{yaml_path.stem}: trigger '{trigger.when}' missing action"
+            )
+
 
 # ── All five categories are present ──────────────────────────────────
 
@@ -155,21 +163,29 @@ class TestPromptRendering:
             key = " ".join(words)
             assert key in prompt, f"Trigger text '{key}' not in open_items prompt"
 
+    def test_open_items_has_action_arrows(self, yaml_path: Path):
+        spec = self._load_spec(yaml_path)
+        prompt = PromptRenderer.render_open_items(spec)
+        assert "\u2192" in prompt, "Open items prompt should contain → arrows"
+
 
 # ── Financial-specific checks ────────────────────────────────────────
 
 
 class TestFinancialSpecific:
     def _load_financial(self) -> CategoryRuleSpec:
-        raw = yaml.safe_load(
-            (YAML_DIR / "financial.yaml").read_text(encoding="utf-8")
-        )
+        raw = yaml.safe_load((YAML_DIR / "financial.yaml").read_text(encoding="utf-8"))
         return CategoryRuleSpec(**raw)
 
     def test_has_mandatory_triggers(self):
         spec = self._load_financial()
         mandatory = [t for t in spec.open_rules.triggers if t.mandatory]
         assert len(mandatory) == 8
+
+    def test_has_action_triggers(self):
+        spec = self._load_financial()
+        action_triggers = [t for t in spec.open_rules.triggers if t.action]
+        assert len(action_triggers) == 13
 
     def test_has_duplication_rules(self):
         spec = self._load_financial()
@@ -198,9 +214,7 @@ class TestFinancialSpecific:
 
 class TestLitigationSpecific:
     def _load_litigation(self) -> CategoryRuleSpec:
-        raw = yaml.safe_load(
-            (YAML_DIR / "litigation.yaml").read_text(encoding="utf-8")
-        )
+        raw = yaml.safe_load((YAML_DIR / "litigation.yaml").read_text(encoding="utf-8"))
         return CategoryRuleSpec(**raw)
 
     def test_has_action_triggers(self):
@@ -218,6 +232,60 @@ class TestLitigationSpecific:
         prompt = PromptRenderer.render_close_cancel(spec)
         assert "IMPORTANT" in prompt
         assert "postponement" in prompt.lower() or "continuance" in prompt.lower()
+
+
+# ── Treatment-specific checks ────────────────────────────────────────
+
+
+class TestTreatmentSpecific:
+    def _load_treatment(self) -> CategoryRuleSpec:
+        raw = yaml.safe_load((YAML_DIR / "treatment.yaml").read_text(encoding="utf-8"))
+        return CategoryRuleSpec(**raw)
+
+    def test_has_action_triggers(self):
+        spec = self._load_treatment()
+        action_triggers = [t for t in spec.open_rules.triggers if t.action]
+        assert len(action_triggers) == 6
+
+    def test_has_preamble(self):
+        spec = self._load_treatment()
+        assert spec.open_rules.preamble is not None
+
+
+# ── Compliance-specific checks ───────────────────────────────────────
+
+
+class TestComplianceSpecific:
+    def _load_compliance(self) -> CategoryRuleSpec:
+        raw = yaml.safe_load((YAML_DIR / "compliance.yaml").read_text(encoding="utf-8"))
+        return CategoryRuleSpec(**raw)
+
+    def test_has_action_triggers(self):
+        spec = self._load_compliance()
+        action_triggers = [t for t in spec.open_rules.triggers if t.action]
+        assert len(action_triggers) == 6
+
+    def test_has_preamble(self):
+        spec = self._load_compliance()
+        assert spec.open_rules.preamble is not None
+
+
+# ── Employment-specific checks ───────────────────────────────────────
+
+
+class TestEmploymentSpecific:
+    def _load_employment(self) -> CategoryRuleSpec:
+        raw = yaml.safe_load((YAML_DIR / "employment.yaml").read_text(encoding="utf-8"))
+        return CategoryRuleSpec(**raw)
+
+    def test_has_action_triggers(self):
+        spec = self._load_employment()
+        action_triggers = [t for t in spec.open_rules.triggers if t.action]
+        assert len(action_triggers) == 6
+
+    def test_has_preamble(self):
+        spec = self._load_employment()
+        assert spec.open_rules.preamble is not None
 
 
 # ── Malformed YAML raises ValidationError ────────────────────────────
@@ -252,6 +320,23 @@ class TestMalformedYaml:
                 description="test",
                 close_rules=[{"when": "x"}],
                 cancel_rules=[{"when": "x"}],
-                open_rules={"triggers": [{"when": "x"}], "exclusions": ["x"]},
+                open_rules={
+                    "triggers": [{"when": "x", "action": "do something"}],
+                    "exclusions": ["x"],
+                },
                 owner_guidance=[{"owner": "invalid_owner", "when": "x"}],
+            )
+
+    def test_trigger_without_action_raises(self):
+        with pytest.raises(ValidationError):
+            CategoryRuleSpec(
+                category="treatment",
+                description="test",
+                close_rules=[{"when": "x"}],
+                cancel_rules=[{"when": "x"}],
+                open_rules={
+                    "triggers": [{"when": "x"}],
+                    "exclusions": ["x"],
+                },
+                owner_guidance=[{"owner": "adjuster", "when": "x"}],
             )

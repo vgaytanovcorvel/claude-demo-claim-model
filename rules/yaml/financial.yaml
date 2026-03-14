@@ -58,30 +58,40 @@ open_rules:
   triggers:
     - when: New diagnosis, change in diagnosis, or additional body part claimed
       mandatory: true
+      action: open reserve review item referencing the new or changed diagnosis
     - when: Surgery recommended, approved, or performed
       mandatory: true
+      action: open reserve review item referencing the surgical procedure
     - when: Treatment plan extended, escalated, or materially changed
       mandatory: true
+      action: open reserve review item referencing the treatment plan change
     - when: Return-to-work timeline delayed or materially revised
       mandatory: true
+      action: open reserve review item referencing the revised RTW timeline
     - when: Permanent impairment rating assigned or changed
       mandatory: true
+      action: open reserve review item referencing the impairment rating
     - when: Settlement discussions initiated or settlement demand received
       mandatory: true
+      action: open reserve review item referencing the settlement activity
     - when: Litigation filed or attorney representation noticed
       mandatory: true
+      action: open reserve review item referencing the litigation or representation change
     - when: Claim denied, disputed, or appealed
       mandatory: true
-    - when: >-
-        Initial claim filing → open item for wage verification and average
-        weekly wage calculation (owner: employer for wage data, adjuster for
-        rate calculation)
-    - when: >-
-        Medical treatment authorized or provided → open item for expense
-        approval or payment processing if a specific bill or cost is mentioned
-    - when: Third-party liability identified → open subrogation investigation item
-    - when: Overpayment identified → open recovery/offset item
-    - when: Settlement terms agreed → open item for settlement check processing
+      action: open reserve review item referencing the denial, dispute, or appeal
+    - when: Initial claim filed
+      action: >-
+        open item for wage verification and average weekly wage calculation
+    - when: Medical treatment authorized or provided with a specific bill or cost mentioned
+      action: >-
+        open item for expense approval or payment processing
+    - when: Third-party liability identified
+      action: open subrogation investigation item
+    - when: Overpayment identified
+      action: open recovery/offset item
+    - when: Settlement terms agreed
+      action: open item for settlement check processing
   exclusions:
     - >-
       Routine medical updates that do not change diagnosis, treatment plan,
