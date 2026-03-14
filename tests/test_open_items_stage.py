@@ -3,14 +3,16 @@ from unittest.mock import patch
 from models.claim_event import ClaimEvent
 from models.claim_state import ClaimState
 from models.claim_state_delta import ClaimStateDelta
+from models.todo_item_category import TodoItemCategory
 from models.todo_item_status import TodoItemStatus
 from models.urgency_type import UrgencyType
 from pipeline.open_items_stage import _make_add_open_item_tool, open_items_stage
+from rules.treatment_rules import TREATMENT_RULES
 
 
 def test_add_open_item_tool_mutates_delta():
     delta = ClaimStateDelta()
-    add_tool = _make_add_open_item_tool(delta)
+    add_tool = _make_add_open_item_tool(delta, TREATMENT_RULES)
 
     result = add_tool(
         "todo-new", "Get repair estimate", "contractor", "deadline-driven"
@@ -24,6 +26,7 @@ def test_add_open_item_tool_mutates_delta():
     assert item.owner == "contractor"
     assert item.urgency_type == UrgencyType.DEADLINE_DRIVEN
     assert item.status == TodoItemStatus.OPEN
+    assert item.category == TodoItemCategory.TREATMENT
     assert item.created_at is not None
 
 
@@ -41,8 +44,11 @@ def test_open_items_stage_integration(
     mock_run_tool_loop.side_effect = side_effect
     delta = ClaimStateDelta()
 
-    result = open_items_stage(sample_claim_event, sample_claim_state, delta)
+    result = open_items_stage(
+        sample_claim_event, sample_claim_state, delta, TREATMENT_RULES
+    )
 
     assert len(result.open_items.add) == 1
     assert result.open_items.add[0].todo_item_id == "todo-new"
+    assert result.open_items.add[0].category == TodoItemCategory.TREATMENT
     mock_run_tool_loop.assert_called_once()

@@ -5,6 +5,7 @@ import pytest
 from models.claim_event import ClaimEvent
 from models.claim_state import ClaimState
 from models.todo_item import TodoItem
+from models.todo_item_category import TodoItemCategory
 from models.todo_item_status import TodoItemStatus
 from models.urgency_type import UrgencyType
 
@@ -27,6 +28,7 @@ def sample_todo_item(overrides: dict | None = None) -> TodoItem:
         "description": "Schedule adjuster visit",
         "owner": "adjuster-team",
         "urgency_type": UrgencyType.MILESTONE_PROTECTING,
+        "category": TodoItemCategory.TREATMENT,
     }
     if overrides:
         defaults.update(overrides)
@@ -51,6 +53,7 @@ def sample_claim_state() -> ClaimState:
                     "description": "Request contractor estimate",
                     "owner": "claims-handler",
                     "urgency_type": UrgencyType.DEADLINE_DRIVEN,
+                    "category": TodoItemCategory.FINANCIAL,
                 }
             ),
         ],
@@ -62,6 +65,7 @@ def sample_claim_state() -> ClaimState:
                     "description": "Verify policy coverage",
                     "owner": "underwriting",
                     "urgency_type": UrgencyType.DISCRETIONARY,
+                    "category": TodoItemCategory.COMPLIANCE,
                     "terminal_at": datetime(2026, 3, 10, 14, 0, 0, tzinfo=timezone.utc),
                 }
             ),
