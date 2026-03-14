@@ -1,0 +1,44 @@
+category: treatment
+description: >-
+  Treatment items track medical procedures, therapies, diagnostic tests,
+  and rehabilitation activities.
+
+close_rules:
+  - when: >-
+      the event confirms the treatment was completed
+      (e.g., surgery performed, therapy session finished, test results received)
+  - when: >-
+      a medical professional confirms the claimant
+      has reached maximum medical improvement
+
+cancel_rules:
+  - when: >-
+      a medical professional determines the treatment
+      is no longer medically necessary
+  - when: the claimant declines or withdraws from treatment
+  - when: a superseding treatment plan replaces it
+
+open_rules:
+  triggers:
+    - when: >-
+        the event mentions a new medical procedure,
+        therapy, or diagnostic test that needs to be scheduled or completed
+    - when: a physician prescribes a new course of treatment
+    - when: follow-up care is recommended after a procedure
+  exclusions:
+    - "administrative or financial tasks \u2014 those belong in other categories."
+
+owner_guidance:
+  - owner: provider
+    when: >-
+      items requiring medical action (scheduling, performing,
+      or reporting on treatments and tests)
+  - owner: injured-worker
+    when: >-
+      items the claimant must carry out (attending appointments,
+      following prescribed care)
+  - owner: adjuster
+    when: items requiring claims oversight (authorizations, follow-ups)
+
+defaults:
+  when_in_doubt: leave_open

@@ -1,0 +1,83 @@
+category: litigation
+description: >-
+  Litigation items track discrete legal tasks: filing or responding to motions,
+  preparing for and attending depositions, hearings, and mediations,
+  and coordinating with counsel.
+
+close_rules:
+  - when: >-
+      the event confirms the specific task described
+      in that item has been performed
+    detail: >-
+      Match the item's description to the
+      event — do not close based on loosely related activity.
+  - when: >-
+      Examples of valid closes: 'prepare deposition exhibits' closes when the
+      event states exhibits were assembled and delivered to counsel;
+      'file response to motion for summary judgment' closes when the response
+      was filed with the court
+  - when: >-
+      A case-level settlement or final judgment closes only items whose task
+      is specifically rendered complete by that outcome (e.g., 'negotiate
+      settlement terms'). It does NOT automatically close all litigation items —
+      post-settlement tasks like 'file stipulation of dismissal' may still be open
+
+cancel_rules:
+  - when: >-
+      the event explicitly states the legal step will not
+      occur
+    example: >-
+      'opposing counsel withdrew the motion', 'deposition cancelled
+      by agreement of parties'
+  - when: >-
+      a settlement or dismissal makes the specific pending
+      task moot — but only if the event clearly eliminates the need for that task.
+      Do not cancel preparation or coordination items that may still be needed
+      for post-resolution proceedings
+  - never: >-
+      an item based on inference about legal strategy. The event
+      must explicitly state the step is withdrawn, waived, or no longer required
+
+defaults:
+  when_in_doubt: leave_open
+  reason: >-
+    Prematurely closing litigation items
+    risks missed deadlines with court sanctions.
+  notes:
+    - >-
+      A postponement or continuance is NOT a close or cancel — the task remains open.
+
+open_rules:
+  preamble: >-
+    Only open items when the event contains a concrete legal trigger.
+    Each item must describe a specific, actionable task — not a vague category.
+  triggers:
+    - when: Formal notice of attorney representation received
+      action: >-
+        open item to acknowledge representation and assign defense counsel
+    - when: Lawsuit, complaint, or petition filed
+      action: >-
+        open item for each required response (e.g., 'file answer to complaint by [deadline]')
+    - when: Subpoena served
+      action: open item to respond to or comply with the subpoena
+    - when: Deposition, hearing, or mediation scheduled
+      action: >-
+        open a preparation item (e.g., 'prepare exhibits for deposition of [witness]')
+        and an attendance item if adjuster presence is required
+    - when: Court order requiring action
+      action: open item for each specific action ordered
+  exclusions:
+    - Casual mentions of attorneys or legal topics without a concrete action needed.
+    - "Medical, employment, or financial tasks — those belong in other categories."
+    - Tasks that duplicate an existing open item.
+    - Speculative future litigation steps not yet triggered by the event.
+
+owner_guidance:
+  - owner: adjuster
+    when: >-
+      items requiring claims-side legal coordination (gathering documents,
+      coordinating with defense counsel)
+  - owner: other
+    when: >-
+      items handled by attorneys or legal teams (filing motions, attending
+      hearings, conducting depositions)

@@ -1,0 +1,56 @@
+category: employment
+description: >-
+  Employment items track return-to-work activities, job accommodations,
+  vocational rehabilitation, and work capacity assessments.
+
+close_rules:
+  - when: >-
+      the claimant has successfully returned to work
+      (full duty or modified duty as specified)
+  - when: >-
+      a functional capacity evaluation confirms
+      the claimant can perform the required duties
+  - when: the employer confirms accommodations are in place
+
+cancel_rules:
+  - when: >-
+      the claimant's medical condition makes
+      return to the prior role permanently infeasible
+  - when: >-
+      the claimant separates from the employer
+      for unrelated reasons
+  - when: >-
+      a vocational reassignment replaces the
+      original return-to-work plan
+
+open_rules:
+  triggers:
+    - when: >-
+        the event mentions return-to-work planning,
+        work restrictions, or modified duty needs
+    - when: a functional capacity evaluation is ordered
+    - when: vocational rehabilitation is recommended
+    - when: employer accommodation discussions are needed
+  exclusions:
+    - "medical treatments or financial tasks."
+
+owner_guidance:
+  - owner: employer
+    when: >-
+      items requiring workplace action (accommodations, modified duty,
+      return-to-work coordination)
+  - owner: injured-worker
+    when: >-
+      items the claimant must carry out (attending evaluations,
+      reporting to work)
+  - owner: adjuster
+    when: >-
+      items requiring claims oversight (coordinating vocational rehab,
+      monitoring return-to-work progress)
+  - owner: provider
+    when: >-
+      items requiring medical input (functional capacity evaluations,
+      work restriction assessments)
+
+defaults:
+  when_in_doubt: leave_open

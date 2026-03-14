@@ -1,0 +1,123 @@
+category: financial
+description: >-
+  Financial items track reserve adjustments, benefit payments, expense
+  approvals, wage verification, settlement financials, subrogation,
+  and cost containment tasks.
+
+close_rules:
+  - when: >-
+      the event confirms the specific financial task
+      described in that item has been completed
+    detail: >-
+      Match the item's description
+      to the event — do not close based on loosely related financial activity.
+  - when: >-
+      the event confirms the payment was issued
+      by the payer (not merely requested or approved)
+    applies_to: payment items
+  - when: >-
+      the event confirms reserves were
+      evaluated and the reserve figure was set or affirmed — whether changed or
+      left unchanged after review
+    applies_to: reserve review items
+  - when: >-
+      the event confirms wage data
+      was received and the average weekly wage was calculated
+    applies_to: wage verification items
+  - when: >-
+      the event confirms the settlement
+      agreement was signed by all parties
+    applies_to: settlement items
+
+cancel_rules:
+  - when: >-
+      the event explicitly states the
+      benefit or expense was denied and no appeal is being pursued
+    applies_to: a payment or expense item
+  - when: >-
+      the event explicitly states it has been replaced
+      by a specific named alternative
+    example: "'lump-sum settlement replaces ongoing indemnity payments'"
+  - never: >-
+      reserve review items — reserves must always be reviewed
+      when triggered, even if the expected outcome changes
+  - never: >-
+      based on assumption that a denial is final. If the event
+      mentions an appeal or dispute, the item stays open
+
+defaults:
+  when_in_doubt: leave_open
+  reason: >-
+    Missing a financial obligation
+    creates compliance and audit exposure.
+
+open_rules:
+  preamble: >-
+    Only open items when the event contains a concrete financial trigger.
+    Each item must describe a specific, actionable task — not a vague category.
+  triggers:
+    - when: New diagnosis, change in diagnosis, or additional body part claimed
+      mandatory: true
+    - when: Surgery recommended, approved, or performed
+      mandatory: true
+    - when: Treatment plan extended, escalated, or materially changed
+      mandatory: true
+    - when: Return-to-work timeline delayed or materially revised
+      mandatory: true
+    - when: Permanent impairment rating assigned or changed
+      mandatory: true
+    - when: Settlement discussions initiated or settlement demand received
+      mandatory: true
+    - when: Litigation filed or attorney representation noticed
+      mandatory: true
+    - when: Claim denied, disputed, or appealed
+      mandatory: true
+    - when: >-
+        Initial claim filing → open item for wage verification and average
+        weekly wage calculation (owner: employer for wage data, adjuster for
+        rate calculation)
+    - when: >-
+        Medical treatment authorized or provided → open item for expense
+        approval or payment processing if a specific bill or cost is mentioned
+    - when: Third-party liability identified → open subrogation investigation item
+    - when: Overpayment identified → open recovery/offset item
+    - when: Settlement terms agreed → open item for settlement check processing
+  exclusions:
+    - >-
+      Routine medical updates that do not change diagnosis, treatment plan,
+      or prognosis — these do not trigger financial action.
+    - "Medical, employment, or compliance tasks — those belong in other categories."
+    - Tasks that duplicate an existing open item.
+    - Speculative future costs not yet incurred or authorized.
+  duplication_rules:
+    RESERVE REVIEW DUPLICATION RULES:
+      description_format: >-
+        The reserve review item description must reference the specific trigger
+        (e.g., 'review reserves — surgery approved for rotator cuff repair').
+      rules:
+        - >-
+          If an open reserve review item already exists for a DIFFERENT trigger,
+          open a new one — each material change requires its own review. For example,
+          an existing 'review reserves — new diagnosis' does NOT satisfy the need for
+          'review reserves — surgery approved'.
+        - >-
+          If an open reserve review item already exists for the SAME trigger
+          (same circumstance change from the same event), do NOT open a duplicate.
+        - >-
+          Compare triggers by substance, not exact wording. 'Review reserves —
+          rotator cuff surgery approved' and 'review reserves — surgery authorized
+          for left shoulder' are the same trigger and should not be duplicated.
+
+owner_guidance:
+  - owner: adjuster
+    when: >-
+      most financial items (reserve reviews, processing payments,
+      approving expenses, subrogation, settlement processing)
+  - owner: employer
+    when: >-
+      items requiring employer data (wage verification,
+      payroll records, premium adjustments)
+  - owner: provider
+    when: >-
+      items requiring provider billing action (submitting
+      itemized invoices, responding to bill review)

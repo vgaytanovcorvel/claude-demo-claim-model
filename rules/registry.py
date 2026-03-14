@@ -1,15 +1,18 @@
+from pathlib import Path
+
 from models.todo_item_category import TodoItemCategory
 from rules.category_rules import CategoryRules
-from rules.compliance_rules import COMPLIANCE_RULES
-from rules.employment_rules import EMPLOYMENT_RULES
-from rules.financial_rules import FINANCIAL_RULES
-from rules.litigation_rules import LITIGATION_RULES
-from rules.treatment_rules import TREATMENT_RULES
+from rules.yaml_loader import YamlRuleLoader
+
+_RULES_DIR = Path(__file__).parent / "yaml"
 
 ALL_CATEGORY_RULES: dict[TodoItemCategory, CategoryRules] = {
-    TodoItemCategory.TREATMENT: TREATMENT_RULES,
-    TodoItemCategory.EMPLOYMENT: EMPLOYMENT_RULES,
-    TodoItemCategory.FINANCIAL: FINANCIAL_RULES,
-    TodoItemCategory.COMPLIANCE: COMPLIANCE_RULES,
-    TodoItemCategory.LITIGATION: LITIGATION_RULES,
+    r.category: r
+    for r in [
+        YamlRuleLoader.load(_RULES_DIR / "treatment.yaml"),
+        YamlRuleLoader.load(_RULES_DIR / "employment.yaml"),
+        YamlRuleLoader.load(_RULES_DIR / "financial.yaml"),
+        YamlRuleLoader.load(_RULES_DIR / "compliance.yaml"),
+        YamlRuleLoader.load(_RULES_DIR / "litigation.yaml"),
+    ]
 }

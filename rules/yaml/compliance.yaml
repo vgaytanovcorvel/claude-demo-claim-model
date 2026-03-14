@@ -1,0 +1,48 @@
+category: compliance
+description: >-
+  Compliance items track regulatory filings, statutory deadlines,
+  audit requirements, and jurisdictional reporting obligations.
+
+close_rules:
+  - when: >-
+      the required filing or report has been
+      submitted and acknowledged by the regulatory body
+  - when: an audit has been completed and findings resolved
+  - when: >-
+      the statutory deadline has been met with
+      documented evidence of compliance
+
+cancel_rules:
+  - when: >-
+      a regulatory change eliminates the
+      requirement entirely
+  - when: >-
+      the claim is withdrawn before the compliance
+      obligation arises
+  - never: >-
+      compliance items simply because they are difficult or
+      time-consuming — regulatory obligations must be met
+
+open_rules:
+  triggers:
+    - when: >-
+        the event triggers a regulatory filing
+        deadline or reporting requirement
+    - when: a jurisdictional notice must be sent
+    - when: an audit or review is mandated
+    - when: statutory benefit notices are due to the claimant
+  exclusions:
+    - "treatment, employment, or financial tasks."
+
+owner_guidance:
+  - owner: adjuster
+    when: >-
+      most compliance items (filing reports, meeting statutory deadlines,
+      sending required notices)
+  - owner: employer
+    when: >-
+      items requiring employer regulatory action (OSHA reporting,
+      workplace safety compliance)
+
+defaults:
+  when_in_doubt: leave_open
