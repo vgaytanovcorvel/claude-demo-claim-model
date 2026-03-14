@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel
 
@@ -18,3 +18,4 @@ class TodoItem(BaseModel):
     urgency_type: UrgencyType
     category: TodoItemCategory
     sub_category: str | None = None
+    due_on: date | None = None

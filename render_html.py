@@ -23,6 +23,7 @@ def _category_class(category: str) -> str:
 
 def _render_todo_row(item: TodoItem) -> str:
     sub_cat = _esc(item.sub_category) if item.sub_category else ""
+    due_on = item.due_on.isoformat() if item.due_on else ""
     return (
         f"<tr class='{_category_class(item.category)}' data-category='{_esc(item.category)}'>"
         f"<td class='mono'>{_esc(item.todo_item_id)}</td>"
@@ -32,8 +33,7 @@ def _render_todo_row(item: TodoItem) -> str:
         f"<td>{_esc(item.owner)}</td>"
         f"<td><span class='badge badge-{item.status}'>{_esc(item.status)}</span></td>"
         f"<td>{_esc(item.urgency_type)}</td>"
-        f"<td class='mono'>{_fmt_dt(item.created_at)}</td>"
-        f"<td class='mono'>{_fmt_dt(item.terminal_at)}</td>"
+        f"<td class='mono'>{due_on}</td>"
         f"</tr>"
     )
 
@@ -46,7 +46,7 @@ def _render_todo_table(items: list[TodoItem], title: str) -> str:
         f"<thead><tr>"
         f"<th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th>"
         f"<th>Owner</th><th>Status</th><th>Urgency</th>"
-        f"<th>Created</th><th>Terminal</th>"
+        f"<th>Due</th>"
         f"</tr></thead>"
         f"<tbody>{''.join(_render_todo_row(i) for i in items)}</tbody>"
         f"</table>"
@@ -208,7 +208,7 @@ def render_html(
         letter-spacing: 0.03em; color: #555; border-bottom: 2px solid #ddd;
     }}
     td {{ padding: 6px 8px; border-bottom: 1px solid #eee; vertical-align: top; }}
-    .mono {{ font-family: 'Consolas', 'Fira Code', monospace; font-size: 0.82rem; }}
+    .mono {{ font-family: 'Consolas', 'Fira Code', monospace; font-size: 0.82rem; white-space: nowrap; }}
     .ts {{ color: #888; font-size: 0.82rem; }}
     .empty {{ color: #999; font-style: italic; font-size: 0.85rem; }}
     ul {{ padding-left: 20px; font-size: 0.88rem; }}

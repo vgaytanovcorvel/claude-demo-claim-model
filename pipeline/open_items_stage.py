@@ -1,6 +1,6 @@
 import json
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 from models.claim_event import ClaimEvent
 from models.claim_state import ClaimState
@@ -23,9 +23,10 @@ def _make_add_open_item_tool(
         description: str,
         owner: str,
         urgency_type: str,
-        sub_category: str = "",
+        sub_category: str,
+        due_on: str = "",
     ) -> str:
-        """Add a new open todo item. Provide a unique ID, description, owner (the party responsible for executing this item: adjuster, employer, provider, injured-worker, or other), urgency type (milestone-protecting, deadline-driven, or discretionary), and optionally a sub_category."""
+        """Add a new open todo item. Provide a unique ID, description, owner (the party responsible for executing this item: adjuster, employer, provider, injured-worker, or other), urgency type (milestone-protecting, deadline-driven, or discretionary), sub_category (the sub-category from the matching trigger), and optionally a due_on date (YYYY-MM-DD)."""
         item = TodoItem(
             todo_item_id=todo_item_id,
             created_at=datetime.now(timezone.utc),
@@ -35,6 +36,7 @@ def _make_add_open_item_tool(
             urgency_type=UrgencyType(urgency_type),
             category=rules.category,
             sub_category=sub_category or None,
+            due_on=date.fromisoformat(due_on) if due_on else None,
         )
         delta.open_items.add.append(item)
         return f"Added open item '{todo_item_id}' in category '{rules.category}'."

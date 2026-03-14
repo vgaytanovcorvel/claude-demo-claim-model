@@ -29,6 +29,7 @@ def test_full_orchestration(
                 "Order materials for repair",
                 "adjuster",
                 "deadline-driven",
+                "acute-care",
             )
         return delta
 

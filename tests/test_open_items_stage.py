@@ -19,7 +19,7 @@ def test_add_open_item_tool_mutates_delta():
     delta = ClaimStateDelta()
     add_tool = _make_add_open_item_tool(delta, TREATMENT_RULES)
 
-    result = add_tool("todo-new", "Get repair estimate", "provider", "deadline-driven")
+    result = add_tool("todo-new", "Get repair estimate", "provider", "deadline-driven", "acute-care")
 
     assert "Added" in result
     assert len(delta.open_items.add) == 1
@@ -30,7 +30,7 @@ def test_add_open_item_tool_mutates_delta():
     assert item.urgency_type == UrgencyType.DEADLINE_DRIVEN
     assert item.status == TodoItemStatus.OPEN
     assert item.category == TodoItemCategory.TREATMENT
-    assert item.sub_category is None
+    assert item.sub_category == "acute-care"
     assert item.created_at is not None
 
 
@@ -69,7 +69,7 @@ def test_open_items_stage_integration(
 ):
     def side_effect(system_prompt, user_message, tools, delta):
         add_tool = tools[0]
-        add_tool("todo-new", "Follow up on inspection", "adjuster", "discretionary")
+        add_tool("todo-new", "Follow up on inspection", "adjuster", "discretionary", "acute-care")
         return delta
 
     mock_run_tool_loop.side_effect = side_effect
