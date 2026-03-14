@@ -23,6 +23,14 @@ sub_categories:
     cancel_rules:
       - when: diagnosis changed invalidating the plan
       - when: superseding plan replaces it
+  - name: treatment-monitoring
+    close_rules:
+      - when: treatment completed or discontinued with documented outcome
+      - when: treating physician confirms treatment is no longer needed
+    cancel_rules:
+      - when: treatment authorization revoked or denied on review
+      - when: claimant withdraws from or abandons treatment
+      - when: superseding treatment plan replaces monitored treatment
   - name: authorization
     close_rules:
       - when: authorization granted or denied with decision documented
@@ -66,27 +74,38 @@ open_rules:
       sub_category: acute-care
       action: >-
         open item to advise acute care and await initial diagnosis
+        (deadline: 3 business days from FNOL)
     - when: Diagnosis established or changed by treating physician
       sub_category: treatment-plan
       action: >-
-        open item to verify treatment plan and schedule follow-up appointments
+        open item to verify treatment plan
+        (deadline: 5 business days from diagnosis)
     - when: New treatment prescribed (medication, therapy, procedure)
       sub_category: authorization
       action: >-
-        open item for authorization review and confirm scheduling
+        open item for authorization review
+        (owner: adjuster, deadline: 5 business days from prescription)
+    - when: New treatment authorized (medication, therapy, procedure)
+      sub_category: treatment-monitoring
+      action: >-
+        open item to monitor treatment adherence and effectiveness
+        (owner: adjuster, deadline: 5 business days from treatment authorization, then each 10 business days)
     - when: Surgery recommended by treating physician
       sub_category: pre-surgical-authorization
       action: >-
         open items for pre-surgical authorization, surgical scheduling,
         and post-operative rehabilitation plan
+        (owner: adjuster, deadline: 7 business days from recommendation)
     - when: Follow-up care recommended after a procedure
       sub_category: follow-up-care
       action: >-
         open item to schedule specific follow-up appointments and track completion
+        (owner: adjuster, deadline: 5 business days from recommendation)
     - when: Maximum medical improvement (MMI) reached
       sub_category: mmi-evaluation
       action: >-
         open item to obtain final medical report and coordinate impairment rating
+        (owner: adjuster, deadline: 14 business days from MMI determination)
   exclusions:
     - "administrative or financial tasks — those belong in other categories."
 
