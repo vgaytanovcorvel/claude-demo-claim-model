@@ -14,23 +14,36 @@ def _append(entry: dict) -> None:
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
-def log_prompt(
+def log_prompt_request(
     *,
     system_prompt: str | None = None,
     user_message: str,
-    response_text: str | None = None,
     model: str,
     tools: list[str] | None = None,
 ) -> None:
     _append(
         {
-            "type": "llm_call",
+            "type": "llm_request",
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "model": model,
             "system_prompt": system_prompt,
             "user_message": user_message,
-            "response_text": response_text,
             "tools": tools,
+        }
+    )
+
+
+def log_prompt_response(
+    *,
+    response_text: str | None = None,
+    model: str,
+) -> None:
+    _append(
+        {
+            "type": "llm_response",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "model": model,
+            "response_text": response_text,
         }
     )
 

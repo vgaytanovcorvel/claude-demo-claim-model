@@ -18,8 +18,9 @@ MODEL = "gemini-2.5-pro"
 
 
 def generate(prompt: str) -> str:
-    response = client.models.generate_content(model=MODEL, contents=prompt)
-    from prompt_telemetry import log_prompt
+    from prompt_telemetry import log_prompt_request, log_prompt_response
 
-    log_prompt(user_message=prompt, response_text=response.text, model=MODEL)
+    log_prompt_request(user_message=prompt, model=MODEL)
+    response = client.models.generate_content(model=MODEL, contents=prompt)
+    log_prompt_response(response_text=response.text, model=MODEL)
     return response.text
