@@ -23,7 +23,7 @@ def _category_class(category: str) -> str:
 
 def _render_todo_row(item: TodoItem) -> str:
     return (
-        f"<tr class='{_category_class(item.category)}'>"
+        f"<tr class='{_category_class(item.category)}' data-category='{_esc(item.category)}'>"
         f"<td class='mono'>{_esc(item.todo_item_id)}</td>"
         f"<td><span class='badge badge-{item.category}'>{_esc(item.category)}</span></td>"
         f"<td>{_esc(item.description)}</td>"
@@ -227,6 +227,25 @@ def render_html(
     .badge-closed      {{ background: #d1fae5; color: #065f46; }}
     .badge-cancelled   {{ background: #fef3c7; color: #92400e; }}
 
+    .filter-bar {{
+        display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+        margin-bottom: 16px; padding: 10px 16px;
+        background: #fff; border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }}
+    .filter-bar .filter-title {{
+        font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;
+        color: #666; font-weight: 600; margin-right: 4px;
+    }}
+    .filter-btn {{
+        border: 2px solid transparent; border-radius: 6px; padding: 4px 10px;
+        cursor: pointer; background: #e5e7eb; font-size: 0.82rem;
+        font-weight: 600; transition: opacity 0.15s, border-color 0.15s;
+    }}
+    .filter-btn.active {{ border-color: #3a86ff; opacity: 1; }}
+    .filter-btn:not(.active) {{ opacity: 0.4; }}
+    .filter-btn:hover {{ opacity: 0.85; }}
+
     @media (max-width: 900px) {{
         .split {{ grid-template-columns: 1fr; }}
         .delta-panel {{ border-right: none; border-bottom: 1px solid #e4e7ec; }}
@@ -235,6 +254,20 @@ def render_html(
 </head>
 <body>
 <h1>Claim State Delta Report</h1>
+<div class="filter-bar">
+    <span class="filter-title">Categories:</span>
+    <button class="filter-btn active" data-cat="all" onclick="filterCat('all')">All</button>
+    <button class="filter-btn active" data-cat="treatment" onclick="filterCat('treatment')">
+        <span class="badge badge-treatment">Treatment</span></button>
+    <button class="filter-btn active" data-cat="employment" onclick="filterCat('employment')">
+        <span class="badge badge-employment">Employment</span></button>
+    <button class="filter-btn active" data-cat="financial" onclick="filterCat('financial')">
+        <span class="badge badge-financial">Financial</span></button>
+    <button class="filter-btn active" data-cat="compliance" onclick="filterCat('compliance')">
+        <span class="badge badge-compliance">Compliance</span></button>
+    <button class="filter-btn active" data-cat="litigation" onclick="filterCat('litigation')">
+        <span class="badge badge-litigation">Litigation</span></button>
+</div>
 {"".join(event_sections)}
 <script>
 function toggleSection(id) {{
@@ -242,6 +275,47 @@ function toggleSection(id) {{
     const toggle = document.getElementById('toggle-' + id);
     el.classList.toggle('hidden');
     toggle.classList.toggle('collapsed');
+}}
+function filterCat(cat) {{
+    const btns = document.querySelectorAll('.filter-btn');
+    const allBtn = document.querySelector('.filter-btn[data-cat="all"]');
+    const catBtns = Array.from(document.querySelectorAll('.filter-btn:not([data-cat="all"])'));
+
+    if (cat === 'all') {{
+        // If all are already active, do nothing; otherwise activate all
+        catBtns.forEach(b => b.classList.add('active'));
+        allBtn.classList.add('active');
+    }} else {{
+        const clicked = document.querySelector(`.filter-btn[data-cat="${{cat}}"]`);
+        const activeNonAll = catBtns.filter(b => b.classList.contains('active'));
+
+        // If everything is active (or "All" is on), solo this category
+        // If only this one is active, go back to all
+        // Otherwise toggle this category
+        if (allBtn.classList.contains('active') || activeNonAll.length === catBtns.length) {{
+            catBtns.forEach(b => b.classList.remove('active'));
+            allBtn.classList.remove('active');
+            clicked.classList.add('active');
+        }} else if (activeNonAll.length === 1 && clicked.classList.contains('active')) {{
+            catBtns.forEach(b => b.classList.add('active'));
+            allBtn.classList.add('active');
+        }} else {{
+            clicked.classList.toggle('active');
+            const nowActive = catBtns.filter(b => b.classList.contains('active'));
+            if (nowActive.length === catBtns.length) {{
+                allBtn.classList.add('active');
+            }} else {{
+                allBtn.classList.remove('active');
+            }}
+        }}
+    }}
+
+    const active = new Set(
+        catBtns.filter(b => b.classList.contains('active')).map(b => b.dataset.cat)
+    );
+    document.querySelectorAll('tr[data-category]').forEach(row => {{
+        row.style.display = active.has(row.dataset.category) ? '' : 'none';
+    }});
 }}
 </script>
 </body>
