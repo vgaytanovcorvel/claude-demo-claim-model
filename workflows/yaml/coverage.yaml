@@ -1,0 +1,114 @@
+workflow_id: coverage
+category: coverage
+description: >-
+  Coverage items determine whether an employer's workers' compensation policy
+  exists and was active at the time of injury, and establish that the injury
+  occurred during work duties within the scope of employment.
+
+branches:
+  - name: fnol-coverage-verification
+    trigger: First notice of loss (FNOL) received
+    instructions: >-
+      Open items for all coverage verification tasks:
+      (1) Verify employer's workers' compensation policy is active and covers the
+      date of injury (sub_category: policy-verification, owner: adjuster,
+      deadline: 3 business days from FNOL).
+      (2) Verify claimant's employment status with the named employer on the
+      date of injury (sub_category: employment-verification, owner: adjuster,
+      deadline: 3 business days from FNOL).
+      (3) Establish that the reported injury occurred during work duties or in
+      the course and scope of employment (sub_category: injury-work-relatedness,
+      owner: adjuster, deadline: 5 business days from FNOL).
+      (4) Confirm and document the date of injury (sub_category:
+      date-of-injury-confirmation, owner: adjuster, deadline: 3 business days
+      from FNOL).
+      (5) Confirm employer received timely notice of injury from claimant
+      (sub_category: notice-to-employer, owner: adjuster, deadline: 5 business
+      days from FNOL).
+
+  - name: coverage-confirmed
+    trigger: >-
+      Coverage confirmed — policy verified as active and injury established
+      as work-related
+    instructions: >-
+      Close any remaining open coverage verification items that are now
+      satisfied by the confirmation.
+
+  - name: claim-withdrawn
+    trigger: Claim withdrawn by claimant
+    instructions: >-
+      Cancel all open coverage items — the claim is no longer being pursued.
+
+  - name: duplicate-claim
+    trigger: Claim determined to be a duplicate of an existing claim
+    instructions: >-
+      Cancel all open coverage items — this claim is a duplicate.
+
+  - name: policy-verified
+    trigger: >-
+      Employer's workers' compensation policy confirmed active on date of injury
+    instructions: >-
+      Close the policy-verification item.
+
+  - name: employment-verified
+    trigger: >-
+      Claimant confirmed as employee of named employer on date of injury
+    instructions: >-
+      Close the employment-verification item.
+
+  - name: work-relatedness-established
+    trigger: >-
+      Injury established as occurring during work duties or in the course
+      and scope of employment
+    instructions: >-
+      Close the injury-work-relatedness item.
+
+  - name: date-of-injury-confirmed
+    trigger: Date of injury confirmed and documented
+    instructions: >-
+      Close the date-of-injury-confirmation item.
+
+  - name: notice-confirmed
+    trigger: Employer confirms timely notice of injury received from claimant
+    instructions: >-
+      Close the notice-to-employer item.
+
+  - name: not-employee
+    trigger: Claimant determined to be independent contractor, not employee
+    instructions: >-
+      Cancel the employment-verification item.
+
+  - name: not-work-related
+    trigger: >-
+      Injury determined to have occurred outside of work duties
+      (e.g., commute, personal errand)
+    instructions: >-
+      Cancel the injury-work-relatedness item.
+
+  - name: uninsured-employer
+    trigger: Employer confirmed to be uninsured and referred to state fund
+    instructions: >-
+      Cancel the policy-verification item.
+
+exclusions:
+  - treatment, return-to-work, or financial tasks -- those belong in other categories
+
+owner_guidance:
+  - owner: adjuster
+    when: >-
+      most coverage items — verifying policy, employment, work-relatedness,
+      and coordinating with employer
+  - owner: employer
+    when: >-
+      items requiring employer confirmation (policy details, employment
+      verification, notice of injury)
+  - owner: injured-worker
+    when: >-
+      items requiring claimant statement or documentation
+      (injury description, date of injury)
+
+defaults:
+  when_in_doubt: leave_open
+  reason: >-
+    Coverage must be affirmatively established before benefits are paid.
+    Leaving items open ensures all coverage elements are confirmed.

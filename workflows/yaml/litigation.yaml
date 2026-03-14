@@ -1,0 +1,125 @@
+workflow_id: litigation
+category: litigation
+description: >-
+  Litigation items track discrete legal tasks: filing or responding to motions,
+  preparing for and attending depositions, hearings, and mediations,
+  and coordinating with counsel.
+
+branches:
+  - name: attorney-representation-received
+    trigger: Formal notice of attorney representation received
+    instructions: >-
+      Open an item to acknowledge representation and assign defense counsel
+      (sub_category: attorney-representation, owner: adjuster).
+
+  - name: lawsuit-filed
+    trigger: Lawsuit, complaint, or petition filed
+    instructions: >-
+      Open an item for each required response (e.g., "file answer to complaint
+      by [deadline]") (sub_category: lawsuit-response, owner: other).
+
+  - name: subpoena-served
+    trigger: Subpoena served
+    instructions: >-
+      Open an item to respond to or comply with the subpoena (sub_category:
+      subpoena-response, owner: other).
+
+  - name: hearing-scheduled
+    trigger: Deposition, hearing, or mediation scheduled
+    instructions: >-
+      Open a preparation item (e.g., "prepare exhibits for deposition of
+      [witness]") (sub_category: hearing-preparation, owner: other) and an
+      attendance item if adjuster presence is required (owner: adjuster).
+
+  - name: court-order-received
+    trigger: Court order requiring action
+    instructions: >-
+      Open an item for each specific action ordered (sub_category:
+      court-order-compliance, owner: other).
+
+  - name: representation-acknowledged
+    trigger: Representation acknowledged and defense counsel assigned
+    instructions: >-
+      Close the attorney-representation item.
+
+  - name: response-filed
+    trigger: Response filed with the court
+    instructions: >-
+      Close the lawsuit-response item.
+
+  - name: subpoena-resolved
+    trigger: Subpoena complied with or successfully quashed
+    instructions: >-
+      Close the subpoena-response item.
+
+  - name: hearing-attended
+    trigger: Preparation completed and event attended
+    instructions: >-
+      Close the hearing-preparation item.
+
+  - name: court-order-completed
+    trigger: Ordered action completed
+    instructions: >-
+      Close the court-order-compliance item.
+
+  - name: task-performed
+    trigger: >-
+      Event confirms a specific litigation task described in an open item
+      has been performed
+    instructions: >-
+      Close the matching litigation item. Match the item's description to the
+      event — do not close based on loosely related activity.
+
+  - name: legal-step-cancelled
+    trigger: >-
+      Event explicitly states a legal step will not occur (e.g., opposing
+      counsel withdrew the motion, deposition cancelled by agreement of parties)
+    instructions: >-
+      Cancel the matching litigation item. Do NOT cancel based on inference
+      about legal strategy — the event must explicitly state the step is
+      withdrawn, waived, or no longer required.
+
+  - name: case-dismissed
+    trigger: Case dismissed or settled before response due
+    instructions: >-
+      Cancel the lawsuit-response item if response is no longer needed.
+
+  - name: representation-withdrawn
+    trigger: Representation withdrawn by claimant
+    instructions: >-
+      Cancel the attorney-representation item.
+
+  - name: subpoena-withdrawn
+    trigger: Subpoena withdrawn by issuing party
+    instructions: >-
+      Cancel the subpoena-response item.
+
+  - name: order-vacated
+    trigger: Order vacated or reversed on appeal
+    instructions: >-
+      Cancel the court-order-compliance item.
+
+exclusions:
+  - casual mentions of attorneys or legal topics without a concrete action needed
+  - medical, employment, or financial tasks -- those belong in other categories
+  - tasks that duplicate an existing open item
+  - speculative future litigation steps not yet triggered by the event
+
+owner_guidance:
+  - owner: adjuster
+    when: >-
+      items requiring claims-side legal coordination (gathering documents,
+      coordinating with defense counsel)
+  - owner: other
+    when: >-
+      items handled by attorneys or legal teams (filing motions, attending
+      hearings, conducting depositions)
+
+defaults:
+  when_in_doubt: leave_open
+  reason: >-
+    Prematurely closing litigation items risks missed deadlines with court
+    sanctions.
+  notes:
+    - >-
+      A postponement or continuance is NOT a close or cancel — the task remains open.

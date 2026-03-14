@@ -1,0 +1,101 @@
+workflow_id: treatment
+category: treatment
+description: >-
+  Treatment items track medical procedures, therapies, diagnostic tests,
+  and rehabilitation activities.
+
+branches:
+  - name: fnol-acute-care
+    trigger: First notice of loss (FNOL) received with reported injury
+    instructions: >-
+      Close any existing acute-care items that are superseded by the new FNOL
+      information. Open an item to receive initial diagnosis (sub_category:
+      acute-care, owner: provider, deadline: 3 business days from FNOL).
+
+  - name: diagnosis-established
+    trigger: Diagnosis established or changed by treating physician
+    instructions: >-
+      Close any existing treatment-plan items superseded by the new diagnosis.
+      Open an item to verify the treatment plan (sub_category: treatment-plan,
+      owner: adjuster, deadline: 5 business days from diagnosis).
+
+  - name: treatment-prescribed
+    trigger: New treatment prescribed (medication, therapy, procedure)
+    instructions: >-
+      Open an item for authorization review (sub_category: authorization,
+      owner: adjuster, deadline: 5 business days from prescription).
+
+  - name: treatment-authorized
+    trigger: New treatment authorized (medication, therapy, procedure)
+    instructions: >-
+      Close the authorization item for this treatment if one exists. Open an
+      item to monitor treatment adherence and effectiveness (sub_category:
+      treatment-monitoring, owner: injured-worker, deadline: 5 business days
+      from authorization, then each 10 business days).
+
+  - name: surgery-recommended
+    trigger: Surgery recommended by treating physician
+    instructions: >-
+      Open items for pre-surgical authorization (sub_category:
+      pre-surgical-authorization, owner: adjuster, deadline: 7 business days
+      from recommendation). Also open items for surgical scheduling
+      (sub_category: surgical-scheduling, owner: adjuster) and post-operative
+      rehabilitation plan (sub_category: post-op-rehab, owner: adjuster).
+
+  - name: surgery-authorized
+    trigger: Surgical authorization granted
+    instructions: >-
+      Close the pre-surgical-authorization item.
+
+  - name: surgery-performed
+    trigger: Surgery performed
+    instructions: >-
+      Close the surgical-scheduling item.
+
+  - name: follow-up-recommended
+    trigger: Follow-up care recommended after a procedure
+    instructions: >-
+      Open an item to schedule specific follow-up appointments and track
+      completion (sub_category: follow-up-care, owner: adjuster, deadline:
+      5 business days from recommendation).
+
+  - name: mmi-reached
+    trigger: Maximum medical improvement (MMI) reached
+    instructions: >-
+      Close any remaining treatment-monitoring items. Open an item to obtain
+      final medical report and coordinate impairment rating (sub_category:
+      mmi-evaluation, owner: adjuster, deadline: 14 business days from MMI
+      determination).
+
+  - name: treatment-completed
+    trigger: Treatment completed or discontinued with documented outcome
+    instructions: >-
+      Close the treatment-monitoring item for this treatment.
+
+  - name: claimant-declines-treatment
+    trigger: Claimant declines or withdraws from treatment
+    instructions: >-
+      Cancel any open treatment items related to the declined treatment.
+
+  - name: authorization-denied
+    trigger: Treatment authorization revoked or denied on review
+    instructions: >-
+      Cancel the treatment-monitoring item for this treatment.
+
+exclusions:
+  - administrative or financial tasks -- those belong in other categories
+
+owner_guidance:
+  - owner: provider
+    when: >-
+      items requiring medical action (scheduling, performing,
+      or reporting on treatments and tests)
+  - owner: injured-worker
+    when: >-
+      items the claimant must carry out (attending appointments,
+      following prescribed care)
+  - owner: adjuster
+    when: items requiring claims oversight (authorizations, follow-ups)
+
+defaults:
+  when_in_doubt: leave_open

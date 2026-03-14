@@ -1,0 +1,143 @@
+workflow_id: employment
+category: employment
+description: >-
+  Employment items track employer outreach at FNOL for job description,
+  average weekly wage, modified duty availability, and salary continuation,
+  as well as return-to-work activities, job accommodations,
+  vocational rehabilitation, and work capacity assessments.
+
+branches:
+  - name: fnol-employer-outreach
+    trigger: First notice of loss (FNOL) filed
+    instructions: >-
+      Open items for employer outreach:
+      (1) Contact employer and obtain claimant's job description (sub_category:
+      employer-job-description, owner: adjuster, deadline: 5 business days
+      from FNOL).
+      (2) Contact employer and establish claimant's average weekly wage (AWW)
+      with supporting payroll documentation (sub_category: employer-aww,
+      owner: adjuster, deadline: 5 business days from FNOL).
+      (3) Contact employer and determine availability of modified duty positions
+      (sub_category: employer-modified-duty-availability, owner: adjuster,
+      deadline: 5 business days from FNOL).
+      (4) Contact employer and determine if salary continuation is available
+      and its terms (sub_category: employer-salary-continuation, owner: adjuster,
+      deadline: 5 business days from FNOL).
+
+  - name: rtw-planning
+    trigger: Return-to-work planning initiated or work restrictions issued
+    instructions: >-
+      Open an item to coordinate modified duty placement with employer
+      (sub_category: modified-duty-placement, owner: employer).
+
+  - name: fce-ordered
+    trigger: Functional capacity evaluation (FCE) ordered
+    instructions: >-
+      Open an item to schedule FCE, notify claimant, and track completion
+      (sub_category: fce, owner: adjuster).
+
+  - name: vocational-rehab
+    trigger: Vocational rehabilitation recommended
+    instructions: >-
+      Open an item to refer to vocational counselor and establish rehabilitation
+      plan (sub_category: vocational-rehab, owner: adjuster).
+
+  - name: accommodations-needed
+    trigger: Employer accommodations needed for returning worker
+    instructions: >-
+      Open an item to initiate interactive process with employer
+      (sub_category: employer-accommodation, owner: employer).
+
+  - name: cleared-full-duty
+    trigger: Claimant cleared for full duty by treating physician
+    instructions: >-
+      Open an item to confirm return-to-work date and verify resumed duties
+      (sub_category: return-to-work-confirmation, owner: employer).
+
+  - name: modified-duty-identified
+    trigger: Modified duty placement identified by employer
+    instructions: >-
+      Open an item to document modified duty offer and obtain claimant
+      acknowledgment (sub_category: modified-duty-offer, owner: employer).
+
+  - name: returned-to-work
+    trigger: Claimant has successfully returned to work
+    instructions: >-
+      Close the return-to-work-confirmation item and any remaining
+      modified-duty items.
+
+  - name: separation-from-employer
+    trigger: Claimant separates from the employer for unrelated reasons
+    instructions: >-
+      Cancel open employment items that require employer interaction, such as
+      modified-duty-placement, employer-accommodation, modified-duty-offer,
+      employer-salary-continuation, and employer-modified-duty-availability.
+
+  - name: job-description-obtained
+    trigger: Job description obtained from employer and documented
+    instructions: >-
+      Close the employer-job-description item.
+
+  - name: aww-confirmed
+    trigger: Average weekly wage confirmed by employer with supporting documentation
+    instructions: >-
+      Close the employer-aww item.
+
+  - name: modified-duty-confirmed
+    trigger: Employer confirms whether modified duty is available
+    instructions: >-
+      Close the employer-modified-duty-availability item.
+
+  - name: salary-continuation-confirmed
+    trigger: Employer confirms salary continuation status and terms
+    instructions: >-
+      Close the employer-salary-continuation item.
+
+  - name: fce-completed
+    trigger: FCE completed and results received
+    instructions: >-
+      Close the fce item.
+
+  - name: rehab-plan-established
+    trigger: Rehabilitation plan established with counselor
+    instructions: >-
+      Close the vocational-rehab item.
+
+  - name: accommodations-in-place
+    trigger: Employer confirms accommodations in place
+    instructions: >-
+      Close the employer-accommodation item.
+
+  - name: modified-duty-offer-acknowledged
+    trigger: Claimant acknowledges modified duty offer
+    instructions: >-
+      Close the modified-duty-offer item.
+
+  - name: medical-condition-worsens
+    trigger: Medical condition worsens, clearance revoked
+    instructions: >-
+      Cancel the return-to-work-confirmation item.
+
+exclusions:
+  - medical treatments or financial tasks
+
+owner_guidance:
+  - owner: employer
+    when: >-
+      items requiring workplace action (accommodations, modified duty,
+      return-to-work coordination)
+  - owner: injured-worker
+    when: >-
+      items the claimant must carry out (attending evaluations,
+      reporting to work)
+  - owner: adjuster
+    when: >-
+      items requiring claims oversight (coordinating vocational rehab,
+      monitoring return-to-work progress)
+  - owner: provider
+    when: >-
+      items requiring medical input (functional capacity evaluations,
+      work restriction assessments)
+
+defaults:
+  when_in_doubt: leave_open

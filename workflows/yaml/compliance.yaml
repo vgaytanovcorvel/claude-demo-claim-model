@@ -1,0 +1,104 @@
+workflow_id: compliance
+category: compliance
+description: >-
+  Compliance items track regulatory filings, statutory deadlines,
+  audit requirements, and jurisdictional reporting obligations.
+
+branches:
+  - name: regulatory-filing-triggered
+    trigger: Regulatory filing deadline triggered by claim event
+    instructions: >-
+      Open an item to prepare and submit the required filing (sub_category:
+      regulatory-filing, owner: adjuster).
+
+  - name: jurisdictional-notice-required
+    trigger: Jurisdictional notice required for claimant or employer
+    instructions: >-
+      Open an item to draft, review, and mail notice with proof of service
+      (sub_category: jurisdictional-notice, owner: adjuster).
+
+  - name: audit-mandated
+    trigger: Audit or review mandated by regulatory body
+    instructions: >-
+      Open an item to compile documentation and schedule review (sub_category:
+      audit, owner: adjuster).
+
+  - name: benefit-notices-due
+    trigger: Statutory benefit notices due to the claimant
+    instructions: >-
+      Open an item to generate and send notices within statutory timeframe
+      (sub_category: benefit-notice, owner: adjuster).
+
+  - name: osha-reporting-triggered
+    trigger: OSHA reporting triggered by workplace injury
+    instructions: >-
+      Open an item for employer to complete OSHA log and file required reports
+      (sub_category: osha-reporting, owner: employer).
+
+  - name: acceptance-denial-deadline
+    trigger: Acceptance or denial letter deadline approaching
+    instructions: >-
+      Open an item to issue acceptance or denial letter within statutory window
+      (sub_category: acceptance-denial-letter, owner: adjuster).
+
+  - name: filing-submitted
+    trigger: Filing submitted and acknowledged by regulatory body
+    instructions: >-
+      Close the regulatory-filing item.
+
+  - name: notice-mailed
+    trigger: Notice mailed with proof of service
+    instructions: >-
+      Close the jurisdictional-notice item.
+
+  - name: audit-completed
+    trigger: Audit completed and findings resolved
+    instructions: >-
+      Close the audit item.
+
+  - name: benefit-notices-sent
+    trigger: Notices generated and sent within timeframe
+    instructions: >-
+      Close the benefit-notice item.
+
+  - name: osha-reports-filed
+    trigger: OSHA log completed and reports filed
+    instructions: >-
+      Close the osha-reporting item.
+
+  - name: letter-issued
+    trigger: Acceptance or denial letter issued within statutory window
+    instructions: >-
+      Close the acceptance-denial-letter item.
+
+  - name: compliance-met
+    trigger: >-
+      Statutory deadline met with documented evidence of compliance
+    instructions: >-
+      Close any remaining compliance items satisfied by this evidence.
+
+  - name: regulatory-change-eliminates
+    trigger: Regulatory change eliminates the requirement entirely
+    instructions: >-
+      Cancel the compliance item whose requirement was eliminated.
+
+  - name: claim-withdrawn-before-obligation
+    trigger: Claim withdrawn before the compliance obligation arises
+    instructions: >-
+      Cancel open compliance items whose obligations have not yet arisen.
+
+exclusions:
+  - treatment, employment, or financial tasks -- those belong in other categories
+
+owner_guidance:
+  - owner: adjuster
+    when: >-
+      most compliance items (filing reports, meeting statutory deadlines,
+      sending required notices)
+  - owner: employer
+    when: >-
+      items requiring employer regulatory action (OSHA reporting,
+      workplace safety compliance)
+
+defaults:
+  when_in_doubt: leave_open

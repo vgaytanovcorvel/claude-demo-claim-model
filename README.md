@@ -54,6 +54,27 @@ YAML list of claim events:
   content: "Another event in the claim timeline."
 ```
 
+## Prompt Telemetry
+
+Every Gemini API call is logged to `output/telemetry/prompts.jsonl`. Each line is a JSON object with:
+
+- `timestamp` — UTC ISO format
+- `model` — model used (e.g. `gemini-2.5-pro`)
+- `system_prompt` — system instruction, if any
+- `user_message` — the full prompt sent to the model
+- `response_text` — the model's response
+- `tools` — list of tool function names (for tool-calling requests)
+
+The log file is created automatically on the first run. To review captured prompts:
+
+```bash
+# Pretty-print all entries
+cat output/telemetry/prompts.jsonl | python -m json.tool
+
+# Show just the user messages (first 200 chars each)
+python -c "import json; [print(json.loads(l)['user_message'][:200]) for l in open('output/telemetry/prompts.jsonl')]"
+```
+
 ## Test
 
 ```bash

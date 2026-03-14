@@ -1,0 +1,142 @@
+workflow_id: financial
+category: financial
+description: >-
+  Financial items track reserve adjustments, benefit payments, expense
+  approvals, wage verification, settlement financials, subrogation,
+  and cost containment tasks.
+
+branches:
+  - name: material-change-reserve-review
+    trigger: >-
+      Any material change that could affect claim value — including but not
+      limited to: new or changed diagnosis, additional body part claimed,
+      surgery recommended/approved/performed, treatment plan extended or
+      escalated, return-to-work timeline delayed, permanent impairment
+      rating assigned or changed, settlement discussions initiated,
+      litigation filed or attorney representation noticed, claim denied
+      or disputed or appealed
+    instructions: >-
+      This is a mandatory trigger. Open a single reserve review item (or keep
+      the existing one open) so the adjuster reviews and updates reserves
+      (sub_category: reserve-review, owner: adjuster, urgency: milestone-protecting).
+      Before opening, check the open items and accumulated delta for existing
+      reserve review items to avoid duplicates. Do NOT cancel reserve review
+      items — reserves must always be reviewed when triggered.
+
+  - name: initial-claim-filed
+    trigger: Initial claim filed
+    instructions: >-
+      Open an item for wage verification and average weekly wage calculation
+      (sub_category: wage-verification, owner: employer).
+
+  - name: treatment-billed
+    trigger: Medical treatment authorized or provided with a specific bill or cost mentioned
+    instructions: >-
+      Open an item for expense approval or payment processing (sub_category:
+      expense-payment, owner: adjuster).
+
+  - name: third-party-liability
+    trigger: Third-party liability identified
+    instructions: >-
+      Open a subrogation investigation item (sub_category: subrogation,
+      owner: adjuster).
+
+  - name: overpayment-identified
+    trigger: Overpayment identified
+    instructions: >-
+      Open a recovery/offset item (sub_category: recovery, owner: adjuster).
+
+  - name: settlement-agreed
+    trigger: Settlement terms agreed
+    instructions: >-
+      Open an item for settlement check processing (sub_category:
+      settlement-processing, owner: adjuster).
+
+  - name: reserve-review-completed
+    trigger: Reserve review performed and reserves updated or explicitly affirmed
+    instructions: >-
+      Close the reserve-review item.
+
+  - name: wage-data-received
+    trigger: Wage data received and average weekly wage calculated
+    instructions: >-
+      Close the wage-verification item.
+
+  - name: payment-issued
+    trigger: Payment issued by payer
+    instructions: >-
+      Close the expense-payment item for this specific payment.
+
+  - name: subrogation-completed
+    trigger: Subrogation investigation completed and recovery decision made
+    instructions: >-
+      Close the subrogation item.
+
+  - name: recovery-processed
+    trigger: Recovery or offset processed
+    instructions: >-
+      Close the recovery item.
+
+  - name: settlement-completed
+    trigger: Settlement check issued and agreement signed
+    instructions: >-
+      Close the settlement-processing item.
+
+  - name: financial-task-replaced
+    trigger: >-
+      A financial task explicitly stated to be replaced by a specific named
+      alternative (e.g., lump-sum settlement replaces ongoing indemnity payments)
+    instructions: >-
+      Cancel the replaced financial item.
+
+  - name: claim-withdrawn-before-wages
+    trigger: Claim withdrawn before wages verified
+    instructions: >-
+      Cancel the wage-verification item.
+
+  - name: benefit-denied
+    trigger: Benefit or expense denied with no appeal being pursued
+    instructions: >-
+      Cancel the expense-payment item.
+
+  - name: third-party-liability-disproven
+    trigger: Third-party liability disproven
+    instructions: >-
+      Cancel the subrogation item.
+
+  - name: overpayment-reversed
+    trigger: Overpayment determination reversed
+    instructions: >-
+      Cancel the recovery item.
+
+  - name: settlement-collapsed
+    trigger: Settlement negotiations collapse
+    instructions: >-
+      Cancel the settlement-processing item.
+
+exclusions:
+  - >-
+    Routine medical updates that do not change diagnosis, treatment plan,
+    or prognosis -- these do not trigger financial action
+  - medical, employment, or compliance tasks -- those belong in other categories
+  - tasks that duplicate an existing open item
+  - speculative future costs not yet incurred or authorized
+
+owner_guidance:
+  - owner: adjuster
+    when: >-
+      most financial items (reserve reviews, processing payments,
+      approving expenses, subrogation, settlement processing)
+  - owner: employer
+    when: >-
+      items requiring employer data (wage verification,
+      payroll records, premium adjustments)
+  - owner: provider
+    when: >-
+      items requiring provider billing action (submitting
+      itemized invoices, responding to bill review)
+
+defaults:
+  when_in_doubt: leave_open
+  reason: >-
+    Missing a financial obligation creates compliance and audit exposure.

@@ -3,18 +3,17 @@
   content: "New workers comp claim filed by John Smith. Injured left shoulder while lifting boxes at warehouse. Immediate medical attention requested."
 
 - claim_event_id: evt-020
-  timestamp: "2026-03-11T14:30:00Z"
-  content: "Medical report received from Dr. Patel. Diagnosis: rotator cuff tear. Recommended treatment: physical therapy 3x/week for 6 weeks, MRI scheduled."
+  timestamp: "2026-03-14T14:30:00Z"
+  content: "Medical report received from Dr. Patel. Diagnosis: rotator cuff tear. Recommended treatment: physical therapy 3x/week for 6 weeks, MRI requested."
+
+- claim_event_id: evt-025
+  timestamp: "2026-03-18T10:15:00Z"
+  content: "MRI authorized, PT approved."
 
 - claim_event_id: evt-030
-  timestamp: "2026-03-12T10:15:00Z"
-  content: "MRI results confirmed partial rotator cuff tear. Surgery not required at this time. Physical therapy plan approved. MRI authorization was not granted as of moment and we are investigating the reason why."
-
-
-- claim_event_id: evt-040
-  timestamp: "2026-03-15T10:15:00Z"
-  content: "MRI request for authorization approved."
+  timestamp: "2026-03-22T10:15:00Z"
+  content: "MRI results confirmed partial rotator cuff tear. Surgery not required at this time. Reviewed and approved physical therapy only plan."
 
 - claim_event_id: evt-050
-  timestamp: "2026-03-17T16:00:00Z"
+  timestamp: "2026-03-30T16:00:00Z"
   content: "Claimant completed 6 weeks of physical therapy. Dr. Patel reports full range of motion restored. Claimant cleared to return to work with no restrictions."
