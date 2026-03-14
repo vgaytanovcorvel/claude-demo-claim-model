@@ -5,24 +5,21 @@ from models.claim_state import ClaimState
 from process_event import process_event
 
 
-@patch("pipeline.open_items_stage.run_tool_loop")
-@patch("pipeline.close_cancel_stage.run_tool_loop")
+@patch("pipeline.run_workflow.log_workflow")
+@patch("pipeline.workflow_tools.log_tool_call")
+@patch("pipeline.run_workflow.run_tool_loop")
 def test_full_orchestration(
-    mock_close_cancel_loop,
-    mock_open_items_loop,
+    mock_tool_loop,
+    _mock_tool_log,
+    _mock_wf_log,
     sample_claim_event: ClaimEvent,
     sample_claim_state: ClaimState,
 ):
-    def close_side_effect(system_prompt, user_message, tools, delta):
-        # Identify treatment category by system prompt content
+    def side_effect(system_prompt, user_message, tools, delta):
         if "TREATMENT" in system_prompt:
-            close_tool = tools[0]
+            # tools: [add_open_item, close_todo_item, cancel_todo_item, start_workflow]
+            close_tool = tools[1]
             close_tool("todo-001")
-        return delta
-
-    def open_side_effect(system_prompt, user_message, tools, delta):
-        # Identify treatment category by system prompt content
-        if "TREATMENT" in system_prompt:
             add_tool = tools[0]
             add_tool(
                 "todo-003",
@@ -33,8 +30,7 @@ def test_full_orchestration(
             )
         return delta
 
-    mock_close_cancel_loop.side_effect = close_side_effect
-    mock_open_items_loop.side_effect = open_side_effect
+    mock_tool_loop.side_effect = side_effect
 
     result = process_event(sample_claim_state, sample_claim_event)
     state = result.state
@@ -64,9 +60,5 @@ def test_full_orchestration(
     assert len(result.delta.open_items.add) == 1
     assert len(result.delta.open_items.delete) == 1
 
-    # Close/cancel stage called for categories that have open items
-    # (treatment has todo-001, financial has todo-002 => 2 calls)
-    assert mock_close_cancel_loop.call_count == 2
-
-    # Open items stage called for all 5 categories
-    assert mock_open_items_loop.call_count == 5
+    # Workflow called for all 6 categories (single phase)
+    assert mock_tool_loop.call_count == 6
