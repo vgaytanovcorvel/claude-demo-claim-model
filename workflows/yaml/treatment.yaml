@@ -16,47 +16,62 @@ branches:
   - name: diagnosis-and-treatment
     trigger: Diagnosis and treatment plan established or changed by treating physician
     instructions: >-
-      Close the acute-care item if one exists (diagnosis has been received).
-      Cancel any existing authorization or treatment-monitoring items that are
-      superseded by the new diagnosis and treatment plan.
-      Open an item for authorization review (sub_category: authorization,
-      owner: adjuster, urgency: deadline-driven, deadline: 5 business days
-      from diagnosis).
+      1. Close the acute-care item if one exists (diagnosis has been received).
+      
+      2. Delete superseeded diagnosis entities if they exist.
+      3. Cancel any existing authorization or treatment-monitoring items that are
+      for superseeded diagnosis and treatment plan.
+
+      4. Create new diagnosis entities avoiding duplicates. 
+      5. Open an item for authorization review (sub_category: authorization,
+      owner: adjuster, urgency: deadline-driven, deadline: 5 business days from diagnosis, context entity: new diagnosis).
+      
+      IMPORTANT: Do not create treatment entities at this step since treatment plan may not be finalized and could change in the near term.
 
   - name: treatment-plan-changed
     trigger: Treatment plan changed by physician without a new diagnosis
     instructions: >-
-      Cancel any existing authorization or treatment-monitoring items for the
-      prior treatment plan. Open an item for authorization review of the new
-      plan (sub_category: authorization, owner: adjuster, urgency:
+      1. Cancel any existing authorization or treatment-monitoring items for the
+      prior treatment plan (use diagnosis entity id to identify entities by ). 
+      
+      2. Open an item for authorization review of the new plan (sub_category: authorization, owner: adjuster, urgency:
       deadline-driven, deadline: 5 business days from plan change).
+
+      IMPORTANT: Do not create treatment entities at this step since treatment plan may not be finalized and could change in the near term.
 
   - name: diagnostic-test-authorized
     trigger: New diagnostic test authorized
     instructions: >-
-      Close the authorization item for this diagnostic test if one exists.
-      Open item to monitor diagnostic test completion (sub_category:
+      1. Close the authorization item for this diagnostic test if one exists.
+
+      2. Create treatment entity for diagnostic test if needed (avoid duplicates).
+
+      3. Open item to monitor diagnostic test completion (sub_category:
       treatment-monitoring, owner: injured-worker, urgency: deadline-driven,
-      deadline: 5 business days from authorization).
+      deadline: 5 business days from authorization, context entity: new diagnostic test).
 
   - name: diagnostic-test-performed
     trigger: Diagnostic test performed or results received
     instructions: >-
-      Close the treatment-monitoring item for this diagnostic test if one
+      1. Close the treatment-monitoring item for this diagnostic test if one
       exists.
 
   - name: intervention-authorized
     trigger: New intervention authorized (medication, therapy, procedure)
     instructions: >-
-      Close the authorization item for this intervention if one exists.
-      If surgery, open items for surgical scheduling (sub_category:
+      1. Close the authorization item for this intervention if one exists.
+      
+      2. Create treatment entity for intervention if needed (avoid duplicates).
+
+      3. If surgery, open items for surgical scheduling (sub_category:
       surgical-scheduling, owner: adjuster, urgency: milestone-protecting)
       and post-operative rehabilitation plan review (sub_category:
       post-op-rehab, owner: adjuster, urgency: discretionary, deadline:
-      15 business days from authorization).
-      Open item to monitor intervention completion (sub_category:
+      15 business days from authorization, context: new treatment entity).
+      
+      4. Open item to monitor intervention completion (sub_category:
       treatment-monitoring, owner: injured-worker, urgency: deadline-driven,
-      deadline: 5 business days from authorization).
+      deadline: 5 business days from authorization, context: new treatment entity).
 
   - name: intervention-performed
     trigger: Intervention performed or completed

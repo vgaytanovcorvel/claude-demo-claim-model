@@ -5,6 +5,9 @@ from datetime import date, datetime, timezone
 from models.claim_event import ClaimEvent
 from models.claim_state import ClaimState
 from models.claim_state_delta import ClaimStateDelta
+from models.entity import Entity
+from models.entity_status import EntityStatus
+from models.entity_type import EntityType
 from models.owner import Owner
 from models.todo_item import TodoItem
 from models.todo_item_category import TodoItemCategory
@@ -14,7 +17,9 @@ from prompt_telemetry import log_tool_call
 
 
 def make_add_open_item_tool(
-    delta: ClaimStateDelta, category: TodoItemCategory, workflow_id: str,
+    delta: ClaimStateDelta,
+    category: TodoItemCategory,
+    workflow_id: str,
     event_id: str,
 ) -> Callable:
     """Create an add_open_item tool closure."""
@@ -26,12 +31,15 @@ def make_add_open_item_tool(
         urgency_type: str,
         sub_category: str,
         due_on: str = "",
+        context_entity_id: str = "",
     ) -> str:
-        """Add a new open todo item. Provide a unique ID, description, owner (the party responsible for executing this item: adjuster, employer, provider, injured-worker, or other), urgency type (milestone-protecting, deadline-driven, or discretionary), sub_category (the sub-category from the matching branch), and optionally a due_on date (YYYY-MM-DD)."""
+        """Add a new open todo item. Provide a unique ID, description, owner (the party responsible for executing this item: adjuster, employer, provider, injured-worker, or other), urgency type (milestone-protecting, deadline-driven, or discretionary), sub_category (the sub-category from the matching branch), optionally a due_on date (YYYY-MM-DD), and optionally a context_entity_id linking this item to an entity."""
         item = TodoItem(
             todo_item_id=todo_item_id,
             created_at=datetime.now(timezone.utc),
             created_by_event_id=event_id,
+            created_by_workflow_id=workflow_id,
+            context_entity_id=context_entity_id or None,
             status=TodoItemStatus.OPEN,
             description=description,
             owner=Owner(owner),
@@ -52,6 +60,7 @@ def make_add_open_item_tool(
                 "urgency_type": urgency_type,
                 "sub_category": sub_category,
                 "due_on": due_on,
+                "context_entity_id": context_entity_id,
             },
             result=result,
         )
@@ -61,8 +70,11 @@ def make_add_open_item_tool(
 
 
 def make_close_tool(
-    state: ClaimState, delta: ClaimStateDelta, category: TodoItemCategory,
-    workflow_id: str, event_id: str,
+    state: ClaimState,
+    delta: ClaimStateDelta,
+    category: TodoItemCategory,
+    workflow_id: str,
+    event_id: str,
 ) -> Callable:
     """Create a close_todo_item tool closure."""
 
@@ -74,7 +86,9 @@ def make_close_tool(
             if item.todo_item_id == todo_item_id and item.category == category
         ]
         if not matching:
-            result = f"Error: todo item '{todo_item_id}' not found in open {category} items."
+            result = (
+                f"Error: todo item '{todo_item_id}' not found in open {category} items."
+            )
             log_tool_call(
                 workflow_id=workflow_id,
                 tool_name="close_todo_item",
@@ -105,8 +119,11 @@ def make_close_tool(
 
 
 def make_cancel_tool(
-    state: ClaimState, delta: ClaimStateDelta, category: TodoItemCategory,
-    workflow_id: str, event_id: str,
+    state: ClaimState,
+    delta: ClaimStateDelta,
+    category: TodoItemCategory,
+    workflow_id: str,
+    event_id: str,
 ) -> Callable:
     """Create a cancel_todo_item tool closure."""
 
@@ -118,7 +135,9 @@ def make_cancel_tool(
             if item.todo_item_id == todo_item_id and item.category == category
         ]
         if not matching:
-            result = f"Error: todo item '{todo_item_id}' not found in open {category} items."
+            result = (
+                f"Error: todo item '{todo_item_id}' not found in open {category} items."
+            )
             log_tool_call(
                 workflow_id=workflow_id,
                 tool_name="cancel_todo_item",
@@ -148,6 +167,118 @@ def make_cancel_tool(
     return cancel_todo_item
 
 
+def make_create_entity_tool(
+    delta: ClaimStateDelta,
+    event_id: str,
+    workflow_id: str,
+) -> Callable:
+    """Create a create_entity tool closure."""
+
+    def create_entity(
+        entity_id: str,
+        entity_type: str,
+        description: str,
+    ) -> str:
+        """Create a new entity (diagnosis or treatment). Provide a unique entity_id, entity_type (diagnosis or treatment), and a description."""
+        entity = Entity(
+            entity_id=entity_id,
+            entity_type=EntityType(entity_type),
+            description=description,
+            status=EntityStatus.ACTIVE,
+            created_at=datetime.now(timezone.utc),
+            created_by_event_id=event_id,
+            created_by_workflow_id=workflow_id,
+        )
+        delta.entities.add.append(entity)
+        result = f"Created entity '{entity_id}' ({entity_type})."
+        log_tool_call(
+            workflow_id=workflow_id,
+            tool_name="create_entity",
+            args={
+                "entity_id": entity_id,
+                "entity_type": entity_type,
+                "description": description,
+            },
+            result=result,
+        )
+        return result
+
+    return create_entity
+
+
+def make_update_entity_tool(
+    state: ClaimState,
+    delta: ClaimStateDelta,
+    workflow_id: str,
+) -> Callable:
+    """Create an update_entity tool closure."""
+
+    def update_entity(entity_id: str, description: str) -> str:
+        """Update an existing entity's description. Provide the entity_id and the new description."""
+        matching = [e for e in state.entities if e.entity_id == entity_id]
+        if not matching:
+            result = f"Error: entity '{entity_id}' not found."
+            log_tool_call(
+                workflow_id=workflow_id,
+                tool_name="update_entity",
+                args={"entity_id": entity_id, "description": description},
+                result=result,
+            )
+            return result
+        updated = matching[0].model_copy(update={"description": description})
+        delta.entities.update.append(updated)
+        result = f"Updated entity '{entity_id}'."
+        log_tool_call(
+            workflow_id=workflow_id,
+            tool_name="update_entity",
+            args={"entity_id": entity_id, "description": description},
+            result=result,
+        )
+        return result
+
+    return update_entity
+
+
+def make_delete_entity_tool(
+    state: ClaimState,
+    delta: ClaimStateDelta,
+    event_id: str,
+    workflow_id: str,
+) -> Callable:
+    """Create a delete_entity tool closure (logical delete via superseded status)."""
+
+    def delete_entity(entity_id: str) -> str:
+        """Delete (supersede) an entity by its ID. The entity remains in state with status superseded."""
+        matching = [e for e in state.entities if e.entity_id == entity_id]
+        if not matching:
+            result = f"Error: entity '{entity_id}' not found."
+            log_tool_call(
+                workflow_id=workflow_id,
+                tool_name="delete_entity",
+                args={"entity_id": entity_id},
+                result=result,
+            )
+            return result
+        superseded = matching[0].model_copy(
+            update={
+                "status": EntityStatus.SUPERSEDED,
+                "terminal_at": datetime.now(timezone.utc),
+                "terminated_by_event_id": event_id,
+            }
+        )
+        delta.entities.update.append(superseded)
+        result = f"Superseded entity '{entity_id}'."
+        log_tool_call(
+            workflow_id=workflow_id,
+            tool_name="delete_entity",
+            args={"entity_id": entity_id},
+            result=result,
+        )
+        return result
+
+    return delete_entity
+
+
 def make_start_workflow_tool(
     event: ClaimEvent,
     state: ClaimState,
@@ -174,7 +305,9 @@ def make_start_workflow_tool(
         workflow = WORKFLOW_INDEX.get(workflow_id)
         if not workflow:
             available = ", ".join(sorted(WORKFLOW_INDEX.keys()))
-            result = f"Error: workflow '{workflow_id}' not found. Available: {available}"
+            result = (
+                f"Error: workflow '{workflow_id}' not found. Available: {available}"
+            )
             log_tool_call(
                 workflow_id=parent_workflow_id,
                 tool_name="start_workflow",
@@ -219,6 +352,7 @@ def build_user_message(
     return json.dumps(
         {
             "event": event.model_dump(mode="json"),
+            "entities": [entity.model_dump(mode="json") for entity in state.entities],
             "open_items": [
                 item.model_dump(mode="json") for item in category_open_items
             ],
@@ -232,6 +366,7 @@ def build_user_message(
                     "Use this to understand the full picture and avoid "
                     "duplicating work."
                 ),
+                "entities_delta": delta.entities.model_dump(mode="json"),
                 "open_items_delta": delta.open_items.model_dump(mode="json"),
                 "closed_items_delta": delta.closed_items.model_dump(mode="json"),
             },

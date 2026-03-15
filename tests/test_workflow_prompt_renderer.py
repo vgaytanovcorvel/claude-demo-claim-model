@@ -72,7 +72,7 @@ class TestWorkflowPromptRendering:
     def test_has_footer(self, yaml_path: Path):
         spec = self._load_spec(yaml_path)
         prompt = WorkflowPromptRenderer.render(spec)
-        assert "Match the event to applicable branches" in prompt
+        assert "If no branches match" in prompt
 
     def test_has_category_in_preamble(self, yaml_path: Path):
         spec = self._load_spec(yaml_path)

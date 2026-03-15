@@ -4,6 +4,9 @@ import pytest
 
 from models.claim_event import ClaimEvent
 from models.claim_state import ClaimState
+from models.entity import Entity
+from models.entity_status import EntityStatus
+from models.entity_type import EntityType
 from models.owner import Owner
 from models.todo_item import TodoItem
 from models.todo_item_category import TodoItemCategory
@@ -34,6 +37,21 @@ def sample_todo_item(overrides: dict | None = None) -> TodoItem:
     if overrides:
         defaults.update(overrides)
     return TodoItem(**defaults)
+
+
+def sample_entity(overrides: dict | None = None) -> Entity:
+    """Factory function for creating Entity instances with optional overrides."""
+    defaults = {
+        "entity_id": "diagnosis-001",
+        "entity_type": EntityType.DIAGNOSIS,
+        "description": "Lumbar strain",
+        "status": EntityStatus.ACTIVE,
+        "created_at": datetime(2026, 3, 10, 8, 0, 0, tzinfo=timezone.utc),
+        "created_by_event_id": "evt-000",
+    }
+    if overrides:
+        defaults.update(overrides)
+    return Entity(**defaults)
 
 
 @pytest.fixture

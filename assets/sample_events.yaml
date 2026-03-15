@@ -4,7 +4,11 @@
 
 - claim_event_id: evt-020
   timestamp: "2026-03-14T14:30:00Z"
-  content: "Medical report received from Dr. Patel. Diagnosis: rotator cuff tear. Recommended treatment: physical therapy 3x/week for 6 weeks, MRI requested."
+  content: "Medical report received from Dr. Patel. Diagnosis: left rotator cuff tear, right shoulder dislocation. Recommended treatment: physical therapy 3x/week for 6 weeks, MRI requested."
+
+- claim_event_id: evt-023
+  timestamp: "2026-03-15T14:30:00Z"
+  content: "Medical report received from Dr. Patel. Diagnosis: left rotator cuff tear, right shoulder dislocation. Recommended treatment: physical therapy 3x/week for 6 weeks, MRI requested."
 
 - claim_event_id: evt-025
   timestamp: "2026-03-18T10:15:00Z"

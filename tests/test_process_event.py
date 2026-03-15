@@ -60,5 +60,5 @@ def test_full_orchestration(
     assert len(result.delta.open_items.add) == 1
     assert len(result.delta.open_items.delete) == 1
 
-    # Workflow called for all 6 categories (single phase)
-    assert mock_tool_loop.call_count == 6
+    # Workflow called for enabled categories only (treatment)
+    assert mock_tool_loop.call_count == 1

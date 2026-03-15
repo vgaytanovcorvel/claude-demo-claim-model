@@ -39,6 +39,7 @@ def apply_delta(state: ClaimState, delta: ClaimStateDelta) -> ClaimState:
     """Apply a ClaimStateDelta to a ClaimState, returning a new ClaimState."""
     return ClaimState(
         events=_apply_list_delta(state.events, delta.events, "claim_event_id"),
+        entities=_apply_list_delta(state.entities, delta.entities, "entity_id"),
         open_items=_apply_list_delta(
             state.open_items, delta.open_items, "todo_item_id"
         ),

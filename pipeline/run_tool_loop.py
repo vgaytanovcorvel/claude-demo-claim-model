@@ -7,6 +7,23 @@ from prompt_telemetry import log_prompt_request, log_prompt_response
 from vertex_client import MODEL, client
 
 
+def _extract_response_text(response: types.GenerateContentResponse) -> str | None:
+    """Extract all model text from AFC history and the final response."""
+    text_parts: list[str] = []
+
+    if response.automatic_function_calling_history:
+        for content in response.automatic_function_calling_history:
+            if content.role == "model" and content.parts:
+                for part in content.parts:
+                    if part.text:
+                        text_parts.append(part.text)
+
+    if response.text:
+        text_parts.append(response.text)
+
+    return "\n".join(text_parts) if text_parts else None
+
+
 def run_tool_loop(
     system_prompt: str,
     user_message: str,
@@ -32,7 +49,7 @@ def run_tool_loop(
         ),
     )
     log_prompt_response(
-        response_text=response.text if response.text else None,
+        response_text=_extract_response_text(response),
         model=MODEL,
     )
     return delta

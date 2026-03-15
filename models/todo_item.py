@@ -12,8 +12,10 @@ class TodoItem(BaseModel):
     todo_item_id: str
     created_at: datetime
     created_by_event_id: str | None = None
+    created_by_workflow_id: str | None = None
     terminal_at: datetime | None = None
     terminated_by_event_id: str | None = None
+    context_entity_id: str | None = None
     status: TodoItemStatus
     description: str
     owner: Owner

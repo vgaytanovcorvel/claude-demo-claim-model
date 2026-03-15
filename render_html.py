@@ -4,6 +4,7 @@ from datetime import datetime
 from models.claim_event import ClaimEvent
 from models.claim_state import ClaimState
 from models.claim_state_delta import ClaimStateDelta
+from models.entity import Entity
 from models.todo_item import TodoItem
 
 
@@ -24,6 +25,8 @@ def _category_class(category: str) -> str:
 def _render_todo_row(item: TodoItem) -> str:
     sub_cat = _esc(item.sub_category) if item.sub_category else ""
     due_on = item.due_on.isoformat() if item.due_on else ""
+    entity_id = _esc(item.context_entity_id) if item.context_entity_id else ""
+    wf_id = _esc(item.created_by_workflow_id) if item.created_by_workflow_id else ""
     return (
         f"<tr class='{_category_class(item.category)}' data-category='{_esc(item.category)}'>"
         f"<td class='mono'>{_esc(item.todo_item_id)}</td>"
@@ -34,6 +37,8 @@ def _render_todo_row(item: TodoItem) -> str:
         f"<td><span class='badge badge-{item.status}'>{_esc(item.status)}</span></td>"
         f"<td>{_esc(item.urgency_type)}</td>"
         f"<td class='mono'>{due_on}</td>"
+        f"<td class='mono'>{entity_id}</td>"
+        f"<td class='mono'>{wf_id}</td>"
         f"</tr>"
     )
 
@@ -46,9 +51,39 @@ def _render_todo_table(items: list[TodoItem], title: str) -> str:
         f"<thead><tr>"
         f"<th>ID</th><th>Category</th><th>Sub-Category</th><th>Description</th>"
         f"<th>Owner</th><th>Status</th><th>Urgency</th>"
-        f"<th>Due</th>"
+        f"<th>Due</th><th>Entity</th><th>Workflow</th>"
         f"</tr></thead>"
         f"<tbody>{''.join(_render_todo_row(i) for i in items)}</tbody>"
+        f"</table>"
+    )
+
+
+def _render_entity_row(entity: Entity) -> str:
+    wf_id = _esc(entity.created_by_workflow_id) if entity.created_by_workflow_id else ""
+    return (
+        f"<tr>"
+        f"<td class='mono'>{_esc(entity.entity_id)}</td>"
+        f"<td><span class='badge badge-{entity.entity_type}'>{_esc(entity.entity_type)}</span></td>"
+        f"<td>{_esc(entity.description)}</td>"
+        f"<td><span class='badge badge-{entity.status}'>{_esc(entity.status)}</span></td>"
+        f"<td class='mono'>{_esc(entity.created_by_event_id)}</td>"
+        f"<td class='mono'>{wf_id}</td>"
+        f"<td class='mono'>{_fmt_dt(entity.created_at)}</td>"
+        f"<td class='mono'>{_fmt_dt(entity.terminal_at)}</td>"
+        f"</tr>"
+    )
+
+
+def _render_entity_table(entities: list[Entity], title: str) -> str:
+    if not entities:
+        return f"<p class='empty'>{_esc(title)}: none</p>"
+    return (
+        f"<table>"
+        f"<thead><tr>"
+        f"<th>ID</th><th>Type</th><th>Description</th>"
+        f"<th>Status</th><th>Creator Event</th><th>Workflow</th><th>Created</th><th>Terminated</th>"
+        f"</tr></thead>"
+        f"<tbody>{''.join(_render_entity_row(e) for e in entities)}</tbody>"
         f"</table>"
     )
 
@@ -65,6 +100,16 @@ def _render_delta_section(delta: ClaimStateDelta) -> str:
                 f"— {_esc(ev.content[:120])}</li>"
             )
         parts.append("</ul>")
+
+    # Entities added
+    if delta.entities.add:
+        parts.append("<h4>Entities Added</h4>")
+        parts.append(_render_entity_table(delta.entities.add, ""))
+
+    # Entities updated
+    if delta.entities.update:
+        parts.append("<h4>Entities Updated</h4>")
+        parts.append(_render_entity_table(delta.entities.update, ""))
 
     # Open items added
     if delta.open_items.add:
@@ -104,6 +149,9 @@ def _render_state_section(state: ClaimState) -> str:
             f"— {_esc(ev.content[:120])}</li>"
         )
     parts.append("</ul>")
+
+    parts.append(f"<h4>Entities ({len(state.entities)})</h4>")
+    parts.append(_render_entity_table(state.entities, "Entities"))
 
     parts.append(f"<h4>Open Items ({len(state.open_items)})</h4>")
     parts.append(_render_todo_table(state.open_items, "Open items"))
@@ -228,6 +276,9 @@ def render_html(
     .badge-open        {{ background: #dbeafe; color: #1e40af; }}
     .badge-closed      {{ background: #d1fae5; color: #065f46; }}
     .badge-cancelled   {{ background: #fef3c7; color: #92400e; }}
+    .badge-diagnosis   {{ background: #e0e7ff; color: #3730a3; }}
+    .badge-active      {{ background: #d1fae5; color: #065f46; }}
+    .badge-superseded  {{ background: #fee2e2; color: #991b1b; }}
 
     .filter-bar {{
         display: flex; flex-wrap: wrap; gap: 12px; align-items: center;

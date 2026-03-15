@@ -8,7 +8,14 @@ from models.claim_state_delta import ClaimStateDelta
 from models.process_event_result import ProcessEventResult
 from pipeline.add_event_stage import add_event_stage
 from pipeline.run_workflow import run_workflow
+from models.todo_item_category import TodoItemCategory
 from workflows.registry import ALL_WORKFLOWS
+
+# Temporarily limit to treatment only
+_ENABLED_CATEGORIES = {TodoItemCategory.TREATMENT}
+_ACTIVE_WORKFLOWS = {
+    k: v for k, v in ALL_WORKFLOWS.items() if k in _ENABLED_CATEGORIES
+}
 from workflows.workflow import Workflow
 
 
@@ -31,7 +38,7 @@ def process_event(state: ClaimState, event: ClaimEvent) -> ProcessEventResult:
     with ThreadPoolExecutor() as executor:
         futures = {
             executor.submit(_run_workflow, event, state, wf): wf
-            for wf in ALL_WORKFLOWS.values()
+            for wf in _ACTIVE_WORKFLOWS.values()
         }
         workflow_deltas = [f.result() for f in as_completed(futures)]
 
