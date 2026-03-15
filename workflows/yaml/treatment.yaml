@@ -19,25 +19,33 @@ branches:
       1. Close the acute-care item if one exists (diagnosis has been received).
       
       2. Delete superseeded diagnosis entities if they exist.
+
       3. Cancel any existing authorization or treatment-monitoring items that are
       for superseeded diagnosis and treatment plan.
 
       4. Create new diagnosis entities avoiding duplicates. 
+
       5. Open an item for authorization review (sub_category: authorization,
       owner: adjuster, urgency: deadline-driven, deadline: 5 business days from diagnosis, context entity: new diagnosis).
-      
-      IMPORTANT: Do not create treatment entities at this step since treatment plan may not be finalized and could change in the near term.
+
+      6. if there are already authorized treatments entities that are no longer applicable, create new to do items for them
+      (sub_category: treatment-authorization-discrepancy, owner: adjuster, urgency: discretionary, deadline: 5 business days from plan change, context entity: authorized treatment) 
+      to investigate and resolve the discrepancy between the treatment plan and what has already been authorized.
 
   - name: treatment-plan-changed
     trigger: Treatment plan changed by physician without a new diagnosis
     instructions: >-
-      1. Cancel any existing authorization or treatment-monitoring items for the
-      prior treatment plan (use diagnosis entity id to identify entities by ). 
+      1. Identify impacted diagnosis entity id.
       
-      2. Open an item for authorization review of the new plan (sub_category: authorization, owner: adjuster, urgency:
+      2. Using context entity id for diagnosis entity to filter to do items, cancel existing open authorization and treatment-monitoring items for the
+      no longer applicable treatments. 
+      
+      3. Open an item for authorization review of the new treatments if needed (sub_category: authorization, owner: adjuster, urgency:
       deadline-driven, deadline: 5 business days from plan change).
 
-      IMPORTANT: Do not create treatment entities at this step since treatment plan may not be finalized and could change in the near term.
+      4. if there are already authorized treatments entities that are no longer applicable, create new to do items for them
+      (sub_category: treatment-authorization-discrepancy, owner: adjuster, urgency: discretionary, deadline: 5 business days from plan change, context entity: authorized treatment) 
+      to investigate and resolve the discrepancy between the treatment plan and what has already been authorized.
 
   - name: diagnostic-test-authorized
     trigger: New diagnostic test authorized
