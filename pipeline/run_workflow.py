@@ -2,14 +2,14 @@ from models.claim_event import ClaimEvent
 from models.claim_state import ClaimState
 from models.claim_state_delta import ClaimStateDelta
 from pipeline.run_tool_loop import run_tool_loop
+from pipeline.tool_context import ToolContext
 from pipeline.workflow_tools import (
     build_user_message,
     make_add_open_item_tool,
-    make_cancel_tool,
-    make_close_tool,
     make_create_entity_tool,
     make_delete_entity_tool,
     make_start_workflow_tool,
+    make_terminate_tool,
     make_update_entity_tool,
 )
 from prompt_telemetry import log_workflow
@@ -26,7 +26,7 @@ def run_workflow(
     depth: int = 0,
     max_depth: int = MAX_DEPTH,
 ) -> ClaimStateDelta:
-    """Execute a single workflow: one LLM call with all 4 tools."""
+    """Execute a single workflow: one LLM call with all tools."""
     category = workflow.category
     wf_id = workflow.workflow_id
     evt_id = event.claim_event_id
@@ -37,16 +37,21 @@ def run_workflow(
         depth=depth,
     )
 
+    ctx = ToolContext(
+        state=state,
+        delta=delta,
+        category=category,
+        workflow_id=wf_id,
+        event_id=evt_id,
+    )
+
     tools = [
-        make_add_open_item_tool(delta, category, wf_id, evt_id),
-        make_close_tool(state, delta, category, wf_id, evt_id),
-        make_cancel_tool(state, delta, category, wf_id, evt_id),
-        make_create_entity_tool(delta, evt_id, wf_id),
-        make_update_entity_tool(state, delta, wf_id),
-        make_delete_entity_tool(state, delta, evt_id, wf_id),
-        make_start_workflow_tool(
-            event, state, delta, depth, max_depth, parent_workflow_id=wf_id
-        ),
+        make_add_open_item_tool(ctx),
+        make_terminate_tool(ctx),
+        make_create_entity_tool(ctx),
+        make_update_entity_tool(ctx),
+        make_delete_entity_tool(ctx),
+        make_start_workflow_tool(event, ctx, depth, max_depth),
     ]
 
     user_message = build_user_message(event, state, delta, category)

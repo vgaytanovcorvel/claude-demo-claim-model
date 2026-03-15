@@ -17,9 +17,9 @@ def test_full_orchestration(
 ):
     def side_effect(system_prompt, user_message, tools, delta):
         if "TREATMENT" in system_prompt:
-            # tools: [add_open_item, close_todo_item, cancel_todo_item, start_workflow]
-            close_tool = tools[1]
-            close_tool("todo-001")
+            # tools: [add_open_item, terminate, create_entity, update_entity, delete_entity, start_workflow]
+            terminate_tool = tools[1]
+            terminate_tool("todo-001", "closed")
             add_tool = tools[0]
             add_tool(
                 "todo-003",

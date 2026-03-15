@@ -13,15 +13,11 @@ from models.todo_item import TodoItem
 from models.todo_item_category import TodoItemCategory
 from models.todo_item_status import TodoItemStatus
 from models.urgency_type import UrgencyType
+from pipeline.tool_context import ToolContext
 from prompt_telemetry import log_tool_call
 
 
-def make_add_open_item_tool(
-    delta: ClaimStateDelta,
-    category: TodoItemCategory,
-    workflow_id: str,
-    event_id: str,
-) -> Callable:
+def make_add_open_item_tool(ctx: ToolContext) -> Callable:
     """Create an add_open_item tool closure."""
 
     def add_open_item(
@@ -37,21 +33,21 @@ def make_add_open_item_tool(
         item = TodoItem(
             todo_item_id=todo_item_id,
             created_at=datetime.now(timezone.utc),
-            created_by_event_id=event_id,
-            created_by_workflow_id=workflow_id,
+            created_by_event_id=ctx.event_id,
+            created_by_workflow_id=ctx.workflow_id,
             context_entity_id=context_entity_id or None,
             status=TodoItemStatus.OPEN,
             description=description,
             owner=Owner(owner),
             urgency_type=UrgencyType(urgency_type),
-            category=category,
+            category=ctx.category,
             sub_category=sub_category or None,
             due_on=date.fromisoformat(due_on) if due_on else None,
         )
-        delta.open_items.add.append(item)
-        result = f"Added open item '{todo_item_id}' in category '{category}'."
+        ctx.delta.open_items.add.append(item)
+        result = f"Added open item '{todo_item_id}' in category '{ctx.category}'."
         log_tool_call(
-            workflow_id=workflow_id,
+            workflow_id=ctx.workflow_id,
             tool_name="add_open_item",
             args={
                 "todo_item_id": todo_item_id,
@@ -69,109 +65,85 @@ def make_add_open_item_tool(
     return add_open_item
 
 
-def make_close_tool(
-    state: ClaimState,
-    delta: ClaimStateDelta,
-    category: TodoItemCategory,
-    workflow_id: str,
-    event_id: str,
-) -> Callable:
-    """Create a close_todo_item tool closure."""
+def make_terminate_tool(ctx: ToolContext) -> Callable:
+    """Create a terminate_todo_item tool closure (close or cancel)."""
 
-    def close_todo_item(todo_item_id: str) -> str:
-        """Close an open todo item by its ID. Sets status to closed and records terminal_at timestamp."""
-        matching = [
-            item
-            for item in state.open_items
-            if item.todo_item_id == todo_item_id and item.category == category
-        ]
-        if not matching:
-            result = (
-                f"Error: todo item '{todo_item_id}' not found in open {category} items."
-            )
+    def terminate_todo_item(todo_item_id: str, reason: str) -> str:
+        """Terminate an open todo item. reason must be 'closed' (work is done) or 'cancelled' (work is no longer needed). Sets the terminal status and records the timestamp."""
+        if reason not in ("closed", "cancelled"):
+            result = f"Error: reason must be 'closed' or 'cancelled', got '{reason}'."
             log_tool_call(
-                workflow_id=workflow_id,
-                tool_name="close_todo_item",
-                args={"todo_item_id": todo_item_id},
+                workflow_id=ctx.workflow_id,
+                tool_name="terminate_todo_item",
+                args={"todo_item_id": todo_item_id, "reason": reason},
                 result=result,
             )
             return result
-        item = matching[0]
-        closed_item = item.model_copy(
+
+        matching = [
+            item
+            for item in ctx.state.open_items
+            if item.todo_item_id == todo_item_id and item.category == ctx.category
+        ]
+        if not matching:
+            result = f"Error: todo item '{todo_item_id}' not found in open {ctx.category} items."
+            log_tool_call(
+                workflow_id=ctx.workflow_id,
+                tool_name="terminate_todo_item",
+                args={"todo_item_id": todo_item_id, "reason": reason},
+                result=result,
+            )
+            return result
+
+        status = (
+            TodoItemStatus.CLOSED
+            if reason == "closed"
+            else TodoItemStatus.CANCELLED
+        )
+        terminated_item = matching[0].model_copy(
             update={
-                "status": TodoItemStatus.CLOSED,
+                "status": status,
                 "terminal_at": datetime.now(timezone.utc),
-                "terminated_by_event_id": event_id,
+                "terminated_by_event_id": ctx.event_id,
             }
         )
-        delta.closed_items.add.append(closed_item)
-        delta.open_items.delete.append(todo_item_id)
-        result = f"Closed todo item '{todo_item_id}'."
+        ctx.delta.closed_items.add.append(terminated_item)
+        ctx.delta.open_items.delete.append(todo_item_id)
+        verb = "Closed" if reason == "closed" else "Cancelled"
+        result = f"{verb} todo item '{todo_item_id}'."
         log_tool_call(
-            workflow_id=workflow_id,
-            tool_name="close_todo_item",
-            args={"todo_item_id": todo_item_id},
+            workflow_id=ctx.workflow_id,
+            tool_name="terminate_todo_item",
+            args={"todo_item_id": todo_item_id, "reason": reason},
             result=result,
         )
         return result
 
-    return close_todo_item
+    return terminate_todo_item
 
 
-def make_cancel_tool(
-    state: ClaimState,
-    delta: ClaimStateDelta,
-    category: TodoItemCategory,
-    workflow_id: str,
-    event_id: str,
-) -> Callable:
-    """Create a cancel_todo_item tool closure."""
+def _cancel_items_linked_to_entity(ctx: ToolContext, entity_id: str) -> list[str]:
+    """Cancel all open items in this workflow's category that reference the given entity.
 
-    def cancel_todo_item(todo_item_id: str) -> str:
-        """Cancel an open todo item by its ID. Sets status to cancelled and records terminal_at timestamp."""
-        matching = [
-            item
-            for item in state.open_items
-            if item.todo_item_id == todo_item_id and item.category == category
-        ]
-        if not matching:
-            result = (
-                f"Error: todo item '{todo_item_id}' not found in open {category} items."
+    Returns a list of cancelled item IDs.
+    """
+    cancelled_ids: list[str] = []
+    for item in ctx.state.open_items:
+        if item.context_entity_id == entity_id and item.category == ctx.category:
+            cancelled = item.model_copy(
+                update={
+                    "status": TodoItemStatus.CANCELLED,
+                    "terminal_at": datetime.now(timezone.utc),
+                    "terminated_by_event_id": ctx.event_id,
+                }
             )
-            log_tool_call(
-                workflow_id=workflow_id,
-                tool_name="cancel_todo_item",
-                args={"todo_item_id": todo_item_id},
-                result=result,
-            )
-            return result
-        item = matching[0]
-        cancelled_item = item.model_copy(
-            update={
-                "status": TodoItemStatus.CANCELLED,
-                "terminal_at": datetime.now(timezone.utc),
-                "terminated_by_event_id": event_id,
-            }
-        )
-        delta.closed_items.add.append(cancelled_item)
-        delta.open_items.delete.append(todo_item_id)
-        result = f"Cancelled todo item '{todo_item_id}'."
-        log_tool_call(
-            workflow_id=workflow_id,
-            tool_name="cancel_todo_item",
-            args={"todo_item_id": todo_item_id},
-            result=result,
-        )
-        return result
-
-    return cancel_todo_item
+            ctx.delta.closed_items.add.append(cancelled)
+            ctx.delta.open_items.delete.append(item.todo_item_id)
+            cancelled_ids.append(item.todo_item_id)
+    return cancelled_ids
 
 
-def make_create_entity_tool(
-    delta: ClaimStateDelta,
-    event_id: str,
-    workflow_id: str,
-) -> Callable:
+def make_create_entity_tool(ctx: ToolContext) -> Callable:
     """Create a create_entity tool closure."""
 
     def create_entity(
@@ -186,13 +158,13 @@ def make_create_entity_tool(
             description=description,
             status=EntityStatus.ACTIVE,
             created_at=datetime.now(timezone.utc),
-            created_by_event_id=event_id,
-            created_by_workflow_id=workflow_id,
+            created_by_event_id=ctx.event_id,
+            created_by_workflow_id=ctx.workflow_id,
         )
-        delta.entities.add.append(entity)
+        ctx.delta.entities.add.append(entity)
         result = f"Created entity '{entity_id}' ({entity_type})."
         log_tool_call(
-            workflow_id=workflow_id,
+            workflow_id=ctx.workflow_id,
             tool_name="create_entity",
             args={
                 "entity_id": entity_id,
@@ -206,30 +178,26 @@ def make_create_entity_tool(
     return create_entity
 
 
-def make_update_entity_tool(
-    state: ClaimState,
-    delta: ClaimStateDelta,
-    workflow_id: str,
-) -> Callable:
+def make_update_entity_tool(ctx: ToolContext) -> Callable:
     """Create an update_entity tool closure."""
 
     def update_entity(entity_id: str, description: str) -> str:
         """Update an existing entity's description. Provide the entity_id and the new description."""
-        matching = [e for e in state.entities if e.entity_id == entity_id]
+        matching = [e for e in ctx.state.entities if e.entity_id == entity_id]
         if not matching:
             result = f"Error: entity '{entity_id}' not found."
             log_tool_call(
-                workflow_id=workflow_id,
+                workflow_id=ctx.workflow_id,
                 tool_name="update_entity",
                 args={"entity_id": entity_id, "description": description},
                 result=result,
             )
             return result
         updated = matching[0].model_copy(update={"description": description})
-        delta.entities.update.append(updated)
+        ctx.delta.entities.update.append(updated)
         result = f"Updated entity '{entity_id}'."
         log_tool_call(
-            workflow_id=workflow_id,
+            workflow_id=ctx.workflow_id,
             tool_name="update_entity",
             args={"entity_id": entity_id, "description": description},
             result=result,
@@ -239,21 +207,20 @@ def make_update_entity_tool(
     return update_entity
 
 
-def make_delete_entity_tool(
-    state: ClaimState,
-    delta: ClaimStateDelta,
-    event_id: str,
-    workflow_id: str,
-) -> Callable:
-    """Create a delete_entity tool closure (logical delete via superseded status)."""
+def make_delete_entity_tool(ctx: ToolContext) -> Callable:
+    """Create a delete_entity tool closure (logical delete via superseded status).
+
+    Automatically cancels all open items in this workflow's category
+    that reference the superseded entity via context_entity_id.
+    """
 
     def delete_entity(entity_id: str) -> str:
-        """Delete (supersede) an entity by its ID. The entity remains in state with status superseded."""
-        matching = [e for e in state.entities if e.entity_id == entity_id]
+        """Delete (supersede) an entity by its ID. The entity remains in state with status superseded. All open items linked to this entity via context_entity_id are automatically cancelled."""
+        matching = [e for e in ctx.state.entities if e.entity_id == entity_id]
         if not matching:
             result = f"Error: entity '{entity_id}' not found."
             log_tool_call(
-                workflow_id=workflow_id,
+                workflow_id=ctx.workflow_id,
                 tool_name="delete_entity",
                 args={"entity_id": entity_id},
                 result=result,
@@ -263,13 +230,23 @@ def make_delete_entity_tool(
             update={
                 "status": EntityStatus.SUPERSEDED,
                 "terminal_at": datetime.now(timezone.utc),
-                "terminated_by_event_id": event_id,
+                "terminated_by_event_id": ctx.event_id,
             }
         )
-        delta.entities.update.append(superseded)
-        result = f"Superseded entity '{entity_id}'."
+        ctx.delta.entities.update.append(superseded)
+
+        cancelled_ids = _cancel_items_linked_to_entity(ctx, entity_id)
+
+        parts = [f"Superseded entity '{entity_id}'."]
+        if cancelled_ids:
+            parts.append(
+                f"Auto-cancelled {len(cancelled_ids)} linked item(s): "
+                + ", ".join(cancelled_ids)
+                + "."
+            )
+        result = " ".join(parts)
         log_tool_call(
-            workflow_id=workflow_id,
+            workflow_id=ctx.workflow_id,
             tool_name="delete_entity",
             args={"entity_id": entity_id},
             result=result,
@@ -281,11 +258,9 @@ def make_delete_entity_tool(
 
 def make_start_workflow_tool(
     event: ClaimEvent,
-    state: ClaimState,
-    delta: ClaimStateDelta,
+    ctx: ToolContext,
     depth: int,
     max_depth: int,
-    parent_workflow_id: str,
 ) -> Callable:
     """Create a start_workflow tool that recursively calls run_workflow."""
 
@@ -296,7 +271,7 @@ def make_start_workflow_tool(
         if depth >= max_depth:
             result = f"Error: max workflow depth ({max_depth}) reached. Cannot start '{workflow_id}'."
             log_tool_call(
-                workflow_id=parent_workflow_id,
+                workflow_id=ctx.workflow_id,
                 tool_name="start_workflow",
                 args={"workflow_id": workflow_id},
                 result=result,
@@ -309,7 +284,7 @@ def make_start_workflow_tool(
                 f"Error: workflow '{workflow_id}' not found. Available: {available}"
             )
             log_tool_call(
-                workflow_id=parent_workflow_id,
+                workflow_id=ctx.workflow_id,
                 tool_name="start_workflow",
                 args={"workflow_id": workflow_id},
                 result=result,
@@ -318,10 +293,10 @@ def make_start_workflow_tool(
 
         from pipeline.run_workflow import run_workflow
 
-        run_workflow(event, state, delta, workflow, depth + 1, max_depth)
+        run_workflow(event, ctx.state, ctx.delta, workflow, depth + 1, max_depth)
         result = f"Completed sub-workflow '{workflow_id}'."
         log_tool_call(
-            workflow_id=parent_workflow_id,
+            workflow_id=ctx.workflow_id,
             tool_name="start_workflow",
             args={"workflow_id": workflow_id},
             result=result,

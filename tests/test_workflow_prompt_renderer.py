@@ -65,8 +65,7 @@ class TestWorkflowPromptRendering:
         prompt = WorkflowPromptRenderer.render(spec)
         assert "AVAILABLE TOOLS:" in prompt
         assert "add_open_item" in prompt
-        assert "close_todo_item" in prompt
-        assert "cancel_todo_item" in prompt
+        assert "terminate_todo_item" in prompt
         assert "start_workflow" in prompt
 
     def test_has_footer(self, yaml_path: Path):
